@@ -2,6 +2,7 @@ import express from 'express';
 import querystring from 'querystring';
 import logger from "./logger/index.js";
 import rateLimit from 'express-rate-limit'
+import eventModel from './model/index.js';
 
 const app = express();
 
@@ -50,6 +51,18 @@ app.post("/sa.gif", (req, res) => {
   logger.info(jsonData);
   res.send("OK");
 });
+
+app.get('/top10', (req, res) => {
+  console.log(req.url)
+  eventModel.getTop10().then(result => {
+    console.log(result)
+    res.send({
+      code: 200,
+      message: 'success',
+      data: result
+    })
+  })
+})
 
 // 程序监听3000端口
 app.listen(3000, () => {
