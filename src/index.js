@@ -53,9 +53,7 @@ app.post("/sa.gif", (req, res) => {
 });
 
 app.get('/top10', (req, res) => {
-  console.log(req.url)
   eventModel.getTop10().then(result => {
-    console.log(result)
     res.send({
       code: 200,
       message: 'success',
@@ -66,5 +64,5 @@ app.get('/top10', (req, res) => {
 
 // 程序监听3000端口
 app.listen(3000, () => {
-  console.log('服务器已启动，端口号为 3000');
+  console.log('Server Listen at port 3000');
 });
