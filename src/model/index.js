@@ -81,15 +81,35 @@ class EventModel {
   async getTop10() {
     return new Promise((resolve, reject) => {
       const query = `
-        SELECT 
-              title,
-              COUNT(*) AS title_count,
-              COUNT(*) * 100.0 / (SELECT COUNT(*) FROM events) AS percentage
-        FROM events
-        WHERE title IS NOT NULL
-        GROUP BY title
-        ORDER BY title_count DESC
-        LIMIT 10;`;
+      SELECT 
+      title AS page_title,
+      COUNT(*) AS view_count,
+      COUNT(*) * 100.0 / (SELECT COUNT(*) FROM EVENTS) AS view_percent
+      FROM EVENTS
+      WHERE event_id = '$pageview'
+      GROUP BY page_title
+      ORDER BY view_count DESC
+      LIMIT 10;`;
+      this.connection.query(query, (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      });
+    });
+  }
+
+  async getPv() {
+    return new Promise((resolve, reject) => {
+      const query = `
+      SELECT 
+      COUNT(1) AS pv, 
+      COUNT(DISTINCT(aa_id)) AS uv, 
+      FROM_UNIXTIME(ROUND(event_time / 1000), '%Y-%m-%d') AS DATE 
+      FROM EVENTS 
+      WHERE event_id = '$pageview'
+      GROUP BY DATE;`;
       this.connection.query(query, (err, rows) => {
         if (err) {
           reject(err);

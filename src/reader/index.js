@@ -39,6 +39,10 @@ readInterface.on('line', function(line) {
   }
 });
 
+readInterface.on('close',() => {
+  process.exit()
+})
+
 function createRow(vo){
   const row = {
     event_id: vo.event,

@@ -62,6 +62,16 @@ app.get('/top10', (req, res) => {
   })
 })
 
+app.get('/pv', (req, res) => {
+  eventModel.getPv().then(result => {
+    res.send({
+      code: 200,
+      message: 'success',
+      data: result
+    })
+  })
+})
+
 // 程序监听3000端口
 app.listen(3000, () => {
   console.log('Server Listen at port 3000');
