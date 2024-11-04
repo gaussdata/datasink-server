@@ -10,12 +10,10 @@ const logger = winston.createLogger({
           level: 'info',
           dirname: 'logs',
           filename: 'point-%DATE%.log',
-          datePattern: 'YYYY-MM-DD-HH-mm',
-          maxSize: '1M'
+          datePattern: 'YYYY-MM-DD',
+          maxSize: '10M'
       })
     ]
 });
-
-
 
 export default logger;

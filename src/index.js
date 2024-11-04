@@ -2,7 +2,7 @@ import express from 'express';
 import querystring from 'querystring';
 import logger from "./logger/index.js";
 import rateLimit from 'express-rate-limit'
-import eventModel from './model/index.js';
+import eventModel, { createRow }  from './model/index.js';
 
 const app = express();
 
@@ -36,9 +36,8 @@ app.get("/", (req, res) => {
   res.send("Hello Express");
 });
 
-
 // 接收埋点消息
-app.post("/sa.gif", (req, res) => {
+app.post("/t", (req, res) => {
   const urlParams = req.body;
   const params = querystring.parse(urlParams)
   const base64Data = params.data || '';
@@ -49,6 +48,15 @@ app.post("/sa.gif", (req, res) => {
     return false;
   }
   logger.info(jsonData);
+  try {
+    const json = JSON.parse(jsonData);
+    const row = createRow(json);
+    if (row.event_id) {
+      eventModel.addEvent(row);
+    }
+  } catch (error) {
+    logger.error(error);
+  }
   res.send("OK");
 });
 
@@ -62,7 +70,7 @@ app.get('/top10', (req, res) => {
   })
 })
 
-app.get('/pv', (req, res) => {
+app.get('/pvuv', (req, res) => {
   eventModel.getPv().then(result => {
     res.send({
       code: 200,
@@ -74,5 +82,5 @@ app.get('/pv', (req, res) => {
 
 // 程序监听3000端口
 app.listen(3000, () => {
-  console.log('Server Listen at port 3000');
+  console.log('Server Listen at port 3000 http://localhost:3000');
 });

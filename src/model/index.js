@@ -1,9 +1,39 @@
-import mysql from 'mysql';
-import config from '../../config/index.js';
+import sqlite3  from 'sqlite3';
+
+export function createRow(vo) {
+  const row = {
+    event_id: vo.event,
+    event_time: vo.time,
+    // 
+    aa_id: vo.anonymous_id,
+    cookie_id: vo.identities?.$identity_cookie_id,
+    device_id: vo.distinct_id,
+    // 
+    lib: vo.lib?.$lib,
+    lib_method: vo.lib?.$lib_method,
+    lib_version: vo.lib?.$lib_version,
+    // 
+    is_first_day: vo.properties.$is_first_day ? 1 : 0,
+    latest_referrer: vo.properties.$latest_referrer,
+    // 
+    url: vo.properties.$url,
+    url_path: vo.properties.$url_path,
+    title: vo.properties.$title,
+    // 
+    screen_width: vo.properties.$screen_width,
+    screen_height: vo.properties.$screen_height,
+    viewport_width: vo.properties.$viewport_width,
+    viewport_height: vo.properties.$viewport_height
+  }
+  return row
+}
+
 
 class EventModel {
-  constructor(config) {
-    this.connection = mysql.createConnection(config);
+  constructor() {
+    const file = "db/log.db"
+    const db = new sqlite3.Database(file)  
+    this.connection = db
     this.createTable();
   }
 
@@ -29,7 +59,7 @@ class EventModel {
        viewport_width INT,
        viewport_height INT
       )`;
-    this.connection.query(query, (err, result) => {
+    this.connection.run(query, (err, result) => {
       if (err) throw err;
       console.log("Events table created");
     });
@@ -50,7 +80,7 @@ class EventModel {
       ?, ?, ?, ?, 
       ?, ?, ?, ?
     )`;
-    this.connection.query(
+    this.connection.all(
       query,
       [
         event.event_id,
@@ -82,15 +112,15 @@ class EventModel {
     return new Promise((resolve, reject) => {
       const query = `
       SELECT 
-      title AS page_title,
-      COUNT(*) AS view_count,
-      COUNT(*) * 100.0 / (SELECT COUNT(*) FROM EVENTS) AS view_percent
+        title AS page_title,
+        COUNT(*) AS view_count,
+        COUNT(*) * 100.0 / (SELECT COUNT(*) FROM EVENTS) AS view_percent
       FROM EVENTS
       WHERE event_id = '$pageview'
       GROUP BY page_title
       ORDER BY view_count DESC
       LIMIT 10;`;
-      this.connection.query(query, (err, rows) => {
+      this.connection.all(query, (err, rows) => {
         if (err) {
           reject(err);
         } else {
@@ -104,13 +134,13 @@ class EventModel {
     return new Promise((resolve, reject) => {
       const query = `
       SELECT 
-      COUNT(1) AS pv, 
-      COUNT(DISTINCT(aa_id)) AS uv, 
-      FROM_UNIXTIME(ROUND(event_time / 1000), '%Y-%m-%d') AS DATE 
+        COUNT(1) AS pv, 
+        COUNT(DISTINCT(aa_id)) AS uv, 
+        DATE(DATETIME(event_time / 1000, 'unixepoch')) AS DATE   
       FROM EVENTS 
       WHERE event_id = '$pageview'
       GROUP BY DATE;`;
-      this.connection.query(query, (err, rows) => {
+      this.connection.all(query, (err, rows) => {
         if (err) {
           reject(err);
         } else {
@@ -124,6 +154,6 @@ class EventModel {
     this.db.close();
   }
 }
-const eventModel = new EventModel(config.mysql)
 
+const eventModel = new EventModel()
 export default eventModel;

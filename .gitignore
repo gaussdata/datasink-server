@@ -1,4 +1,9 @@
 node_modules
 
+
+db/log.db
+
 logs/*.log
 logs-merge/*.og
+
+package-lock.json
