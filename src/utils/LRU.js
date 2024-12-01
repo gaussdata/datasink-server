@@ -1,6 +1,6 @@
 export default class LRU {
-  constructor(max = 10, ttl = 60 * 1000) {
-    // 默认 TTL 设置为 60000 毫秒（即 1 分钟）
+  constructor(max = 10, ttl = 10 * 1000) {
+    // 默认 TTL 设置为 10 * 1000 毫秒（即 10 秒钟）
     this.max = max;
     this.ttl = ttl;
     this.cache = new Map();
