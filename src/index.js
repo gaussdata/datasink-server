@@ -6,6 +6,7 @@ import middlewareCors from "./middlewares/cors.js";
 
 const app = express();
 
+app.set('trust proxy', 1)
 // 限制 IP 访问频率
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 一分钟内
