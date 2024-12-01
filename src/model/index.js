@@ -1,39 +1,41 @@
-import sqlite3  from 'sqlite3';
+import sqlite3 from "sqlite3";
+import LRU from "../utils/LRU.js";
+
+const cacheService = new LRU();
 
 export function createRow(vo) {
   const row = {
     event_id: vo.event,
     event_time: vo.time,
-    // 
+    //
     aa_id: vo.anonymous_id,
     cookie_id: vo.identities?.$identity_cookie_id,
     device_id: vo.distinct_id,
-    // 
+    //
     lib: vo.lib?.$lib,
     lib_method: vo.lib?.$lib_method,
     lib_version: vo.lib?.$lib_version,
-    // 
+    //
     is_first_day: vo.properties.$is_first_day ? 1 : 0,
     latest_referrer: vo.properties.$latest_referrer,
-    // 
+    //
     url: vo.properties.$url,
     url_path: vo.properties.$url_path,
     title: vo.properties.$title,
-    // 
+    //
     screen_width: vo.properties.$screen_width,
     screen_height: vo.properties.$screen_height,
     viewport_width: vo.properties.$viewport_width,
-    viewport_height: vo.properties.$viewport_height
-  }
-  return row
+    viewport_height: vo.properties.$viewport_height,
+  };
+  return row;
 }
-
 
 class EventModel {
   constructor() {
-    const file = "db/log.db"
-    const db = new sqlite3.Database(file)  
-    this.connection = db
+    const file = "db/log.db";
+    const db = new sqlite3.Database(file);
+    this.connection = db;
     this.createTable();
   }
 
@@ -59,10 +61,16 @@ class EventModel {
        viewport_width INT,
        viewport_height INT
       )`;
-    this.connection.run(query, (err, result) => {
-      if (err) throw err;
-      console.log("Events table created");
-    });
+    return Promise((resolve, reject) => {
+      this.connection.run(query, (err, result) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(result)
+        }
+      });
+    })
+    
   }
 
   addEvent(event) {
@@ -80,36 +88,109 @@ class EventModel {
       ?, ?, ?, ?, 
       ?, ?, ?, ?
     )`;
-    this.connection.all(
-      query,
-      [
-        event.event_id,
-        event.event_time,
-        event.aa_id,
-        event.cookie_id,
-        event.device_id,
-        event.lib,
-        event.lib_method,
-        event.lib_version,
-        event.is_first_day,
-        event.latest_referrer,
-        event.url,
-        event.url_path,
-        event.title,
-        event.screen_width,
-        event.screen_height,
-        event.viewport_width,
-        event.viewport_height
-      ],
-      (err, result) => {
-        if (err) throw err;
-        console.log("Event added");
-      }
-    );
+    const params = [
+      event.event_id,
+      event.event_time,
+      event.aa_id,
+      event.cookie_id,
+      event.device_id,
+      event.lib,
+      event.lib_method,
+      event.lib_version,
+      event.is_first_day,
+      event.latest_referrer,
+      event.url,
+      event.url_path,
+      event.title,
+      event.screen_width,
+      event.screen_height,
+      event.viewport_width,
+      event.viewport_height,
+    ]
+    return new Promise((resolve, reject) => {
+      this.connection.all(
+        query,
+        params,
+        (err, result) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(result)
+          }
+        }
+      );  
+    })
+    
   }
 
-  async getTop10() {
+  addEvents(events) {  
+    if (!Array.isArray(events) || events.length === 0) {  
+        console.log("No events to add.");  
+        return;  
+    }  
+
+    // 创建插入语句  
+    const query = `  
+    INSERT INTO events (  
+      event_id, event_time,  
+      aa_id, cookie_id, device_id,  
+      lib, lib_method, lib_version, is_first_day,  
+      latest_referrer, url, url_path, title,  
+      screen_width, screen_height, viewport_width, viewport_height  
+    ) VALUES `;  
+
+    // 生成占位符和参数数组  
+    const placeholders = events.map(() => "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").join(", ");  
+    const params = [];  
+
+    // 填充参数数组  
+    events.forEach(event => {  
+        params.push(  
+            event.event_id,  
+            event.event_time,  
+            event.aa_id,  
+            event.cookie_id,  
+            event.device_id,  
+            event.lib,  
+            event.lib_method,  
+            event.lib_version,  
+            event.is_first_day,  
+            event.latest_referrer,  
+            event.url,  
+            event.url_path,  
+            event.title,  
+            event.screen_width,  
+            event.screen_height,  
+            event.viewport_width,  
+            event.viewport_height  
+        );  
+    });  
+
+    // 完整的查询  
+    const fullQuery = query + placeholders;  
     return new Promise((resolve, reject) => {
+      this.connection.all(fullQuery, params, (err, result) => {
+        if (err) {
+          reject(err)
+        } else {
+          console.log(`${events.length} events added`);  
+          resolve(result)
+        }
+      });  
+    })
+    
+}  
+
+  async getTop10() {
+    const CACHE_KEY_TOP10 = "cache-top10";
+    const result = cacheService.get(CACHE_KEY_TOP10);
+    if (result) {
+      if (result instanceof Promise) {
+        return result;
+      }
+      return Promise.resolve(result);
+    }
+    const req = new Promise((resolve, reject) => {
       const query = `
       SELECT 
         title AS page_title,
@@ -124,14 +205,25 @@ class EventModel {
         if (err) {
           reject(err);
         } else {
+          cacheService.set(CACHE_KEY_TOP10, rows);
           resolve(rows);
         }
       });
     });
+    cacheService.set(CACHE_KEY_TOP10, req);
+    return req;
   }
 
   async getPv() {
-    return new Promise((resolve, reject) => {
+    const CACHE_KEY_PVUV = "cache-pvuv";
+    const result = cacheService.get(CACHE_KEY_PVUV);
+    if (result) {
+      if (result instanceof Promise) {
+        return result;
+      }
+      return Promise.resolve(result);
+    }
+    const req = new Promise((resolve, reject) => {
       const query = `
       SELECT 
         COUNT(1) AS pv, 
@@ -144,10 +236,13 @@ class EventModel {
         if (err) {
           reject(err);
         } else {
+          cacheService.set(CACHE_KEY_PVUV, rows);
           resolve(rows);
         }
       });
     });
+    cacheService.set(CACHE_KEY_PVUV, req);
+    return req;
   }
 
   close() {
@@ -155,5 +250,5 @@ class EventModel {
   }
 }
 
-const eventModel = new EventModel()
+const eventModel = new EventModel();
 export default eventModel;
