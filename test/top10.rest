@@ -1,6 +1,6 @@
 
 ### PV
-GET http://localhost:3000/pv HTTP/1.1
+GET http://localhost:3000/pvuv HTTP/1.1
 
 ### Top10
 GET http://localhost:3000/top10 HTTP/1.1
