@@ -182,7 +182,7 @@ class EventModel {
 }  
 
   async getTop10() {
-    const CACHE_KEY_TOP10 = "cache-top10";
+    const CACHE_KEY_TOP10 = "cache-pv-top10";
     const result = cacheService.get(CACHE_KEY_TOP10);
     if (result) {
       if (result instanceof Promise) {
@@ -214,8 +214,8 @@ class EventModel {
     return req;
   }
 
-  async getPv() {
-    const CACHE_KEY_PVUV = "cache-pvuv";
+  async getHour24() {
+    const CACHE_KEY_PVUV = "cache-pvuv-hour24";
     const result = cacheService.get(CACHE_KEY_PVUV);
     if (result) {
       if (result instanceof Promise) {
@@ -225,13 +225,149 @@ class EventModel {
     }
     const req = new Promise((resolve, reject) => {
       const query = `
-      SELECT 
-        COUNT(1) AS pv, 
-        COUNT(DISTINCT(aa_id)) AS uv, 
-        DATE(DATETIME(event_time / 1000, 'unixepoch')) AS DATE   
-      FROM EVENTS 
-      WHERE event_id = '$pageview'
-      GROUP BY DATE;`;
+      WITH RECURSIVE hour_range AS (  
+          SELECT strftime('%Y-%m-%d %H:00:00', 'now', 'localtime', '-23 hours') AS hour_start  -- 开始于 24小时前  
+          UNION ALL  
+          SELECT strftime('%Y-%m-%d %H:00:00', hour_start, '+1 hour')  -- 每次递归增加1小时  
+          FROM hour_range   
+          WHERE hour_start < strftime('%Y-%m-%d %H:00:00', 'now', 'localtime')  -- 直到当前小时  
+      )  
+      SELECT   
+          hr.hour_start as hour,  
+          COALESCE(COUNT(e.event_id), 0) AS pv,  
+          COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv  
+      FROM hour_range hr  
+      LEFT JOIN EVENTS e   
+          ON hr.hour_start = strftime('%Y-%m-%d %H:00:00', DATETIME(e.event_time / 1000, 'unixepoch'), 'localtime')  
+          AND e.event_id = '$pageview'  
+      GROUP BY hr.hour_start  
+      ORDER BY hr.hour_start;`;
+      this.connection.all(query, (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          cacheService.set(CACHE_KEY_PVUV, rows);
+          resolve(rows);
+        }
+      });
+    });
+    cacheService.set(CACHE_KEY_PVUV, req);
+    return req;
+  }
+
+  async getDay7() {
+    const CACHE_KEY_PVUV = "cache-pvuv-day7";
+    const result = cacheService.get(CACHE_KEY_PVUV);
+    if (result) {
+      if (result instanceof Promise) {
+        return result;
+      }
+      return Promise.resolve(result);
+    }
+    const req = new Promise((resolve, reject) => {
+      const query = `
+      WITH RECURSIVE date_range AS (  
+        SELECT 
+          DATE('now', '-6 days') AS DATE   -- 开始日期为 7 天前  
+        UNION ALL
+          SELECT DATE(DATE, '+1 day')   
+        FROM date_range
+        WHERE DATE < DATE('now')                -- 直到今天  
+      )  
+      SELECT   
+          dr.DATE as day,  
+          COALESCE(COUNT(e.event_id), 0) AS pv,  
+          COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv  
+      FROM date_range dr  
+      LEFT JOIN EVENTS e   
+          ON dr.DATE = DATE(DATETIME(e.event_time / 1000, 'unixepoch'))  
+          AND e.event_id = '$pageview'  
+      GROUP BY dr.DATE  
+      ORDER BY dr.DATE;`;
+      this.connection.all(query, (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          cacheService.set(CACHE_KEY_PVUV, rows);
+          resolve(rows);
+        }
+      });
+    });
+    cacheService.set(CACHE_KEY_PVUV, req);
+    return req;
+  }
+
+  getWeek4() {
+    const CACHE_KEY_PVUV = "cache-pvuv-week4";
+    const result = cacheService.get(CACHE_KEY_PVUV);
+    if (result) {
+      if (result instanceof Promise) {
+        return result;
+      }
+      return Promise.resolve(result);
+    }
+    const req = new Promise((resolve, reject) => {
+      const query = `
+      WITH RECURSIVE week_range AS (  
+        SELECT 
+          DATE('now', 'weekday 0', '-27 days') AS week_start  -- 获取 28 天前的周日  
+        UNION ALL
+          SELECT DATE(week_start, '+7 days')  
+        FROM week_range   
+        WHERE week_start < DATE('now', 'weekday 1')  -- 直到当前周的周日  
+      )  
+      SELECT   
+        wr.week_start as week_start,
+        COALESCE(COUNT(e.event_id), 0) AS pv,  
+        COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv  
+      FROM week_range wr  
+      LEFT JOIN EVENTS e 
+        ON wr.week_start = DATE(DATETIME(e.event_time / 1000, 'unixepoch'), 'weekday 1')  -- 确保匹配到每周的周日  
+        AND e.event_id = '$pageview'  
+      GROUP BY wr.week_start  
+      ORDER BY wr.week_start;`;
+      this.connection.all(query, (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          cacheService.set(CACHE_KEY_PVUV, rows);
+          resolve(rows);
+        }
+      });
+    });
+    cacheService.set(CACHE_KEY_PVUV, req);
+    return req;
+  }
+
+
+  getMonth6() {
+    const CACHE_KEY_PVUV = "cache-pvuv-month6";
+    const result = cacheService.get(CACHE_KEY_PVUV);
+    if (result) {
+      if (result instanceof Promise) {
+        return result;
+      }
+      return Promise.resolve(result);
+    }
+    const req = new Promise((resolve, reject) => {
+      const query = `
+      WITH RECURSIVE month_range AS (  
+          SELECT DATE('now', 'start of month', '-5 months') AS month_start  -- 6 个月前的月初  
+          UNION ALL  
+          SELECT DATE(month_start, '+1 month')  
+          FROM month_range   
+          WHERE month_start < DATE('now', 'start of month')  -- 直到当前月的月初  
+      )  
+      SELECT   
+          strftime('%Y-%m', month_start) AS month,  -- 格式化为 YYYY-MM  
+          COALESCE(COUNT(e.event_id), 0) AS pv,  -- 访问量  
+          COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv  -- 独立用户数  
+      FROM month_range mr  
+      LEFT JOIN EVENTS e   
+          ON mr.month_start = DATE(DATETIME(e.event_time / 1000, 'unixepoch'), 'start of month')  -- 确保匹配到每月的月初  
+          AND e.event_id = '$pageview'  
+      GROUP BY month  
+      ORDER BY month;`;
       this.connection.all(query, (err, rows) => {
         if (err) {
           reject(err);
