@@ -17,7 +17,7 @@ async function testTrace() {
   const time = result.latency.average;
   const qps = result.requests.average
   const total = result.requests.total;
-  console.log(`Trace qps: ${qps} time: ${time} total: ${total}`);
+  console.log(`Trace\t qps: ${qps} time: ${time}ms total: ${total}`);
 }
 
 async function testPageView() {
@@ -30,7 +30,7 @@ async function testPageView() {
   const time = result.latency.average;
   const qps = result.requests.average
   const total = result.requests.total;
-  console.log(`Page qps: ${qps} time: ${time} total: ${total}`);
+  console.log(`Pageview qps: ${qps} time: ${time}ms total: ${total}`);
 }
 
 
@@ -44,13 +44,13 @@ async function testTop10() {
   const time = result.latency.average;
   const qps = result.requests.average
   const total = result.requests.total;
-  console.log(`Top10 qps: ${qps} time: ${time} total: ${total}`);
+  console.log(`Top10\t qps: ${qps} time: ${time}ms total: ${total}`);
 }
 
 async function test() {
   await testTrace();
-  // await testPageView();
-  // await testTop10();
+  await testPageView();
+  await testTop10();
 }
 
 test();
