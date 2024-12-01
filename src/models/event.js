@@ -192,15 +192,27 @@ class EventModel {
     }
     const req = new Promise((resolve, reject) => {
       const query = `
-      SELECT 
-        title AS page_title,
-        COUNT(*) AS view_count,
-        COUNT(*) * 100.0 / (SELECT COUNT(*) FROM EVENTS) AS view_percent
-      FROM EVENTS
-      WHERE event_id = '$pageview'
-      GROUP BY page_title
-      ORDER BY view_count DESC
-      LIMIT 10;`;
+      WITH top_pages AS (  
+          SELECT   
+              title AS page_title,  
+              COUNT(*) AS view_count  
+          FROM EVENTS  
+          WHERE event_id = '$pageview'   
+            AND title IS NOT NULL        -- 确保标题不为空  
+            AND title <> ''              -- 确保标题不为空字符串  
+          GROUP BY title  
+          ORDER BY view_count DESC  
+          LIMIT 10  
+      ),  
+      total_count AS (  
+          SELECT SUM(view_count) AS total_view_count  
+          FROM top_pages  
+      )  
+      SELECT   
+          tp.page_title,  
+          tp.view_count,  
+          tp.view_count * 100.0 / tc.total_view_count AS view_percent  
+      FROM top_pages tp, total_count tc;`;
       this.connection.all(query, (err, rows) => {
         if (err) {
           reject(err);
@@ -238,7 +250,7 @@ class EventModel {
           COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv  
       FROM hour_range hr  
       LEFT JOIN EVENTS e   
-          ON hr.hour_start = strftime('%Y-%m-%d %H:00:00', DATETIME(e.event_time / 1000, 'unixepoch'), 'localtime')  
+          ON hr.hour_start = strftime('%Y-%m-%d %H:00:00', DATETIME(e.event_time / 1000, 'unixepoch', '+8 hours'), 'localtime')  
           AND e.event_id = '$pageview'  
       GROUP BY hr.hour_start  
       ORDER BY hr.hour_start;`;
@@ -280,7 +292,7 @@ class EventModel {
           COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv  
       FROM date_range dr  
       LEFT JOIN EVENTS e   
-          ON dr.DATE = DATE(DATETIME(e.event_time / 1000, 'unixepoch'))  
+          ON dr.DATE = DATE(DATETIME(e.event_time / 1000, 'unixepoch', '+8 hours'))  
           AND e.event_id = '$pageview'  
       GROUP BY dr.DATE  
       ORDER BY dr.DATE;`;
@@ -322,7 +334,8 @@ class EventModel {
         COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv  
       FROM week_range wr  
       LEFT JOIN EVENTS e 
-        ON wr.week_start = DATE(DATETIME(e.event_time / 1000, 'unixepoch'), 'weekday 1')  -- 确保匹配到每周的周日  
+        ON e.event_time >= (strftime('%s', wr.week_start) * 1000)  -- 从周一的 0 点开始  
+        AND e.event_time < (strftime('%s', DATE(wr.week_start, '+7 days')) * 1000)  -- 到下周一的 0 点  
         AND e.event_id = '$pageview'  
       GROUP BY wr.week_start  
       ORDER BY wr.week_start;`;
@@ -364,7 +377,7 @@ class EventModel {
           COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv  -- 独立用户数  
       FROM month_range mr  
       LEFT JOIN EVENTS e   
-          ON mr.month_start = DATE(DATETIME(e.event_time / 1000, 'unixepoch'), 'start of month')  -- 确保匹配到每月的月初  
+          ON mr.month_start = DATE(DATETIME(e.event_time / 1000, 'unixepoch', '+8 hours'), 'start of month')  -- 确保匹配到每月的月初  
           AND e.event_id = '$pageview'  
       GROUP BY month  
       ORDER BY month;`;
