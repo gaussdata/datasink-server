@@ -61,7 +61,7 @@ class EventModel {
        viewport_width INT,
        viewport_height INT
       )`;
-    return Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.connection.run(query, (err, result) => {
         if (err) {
           reject(err)
@@ -251,4 +251,5 @@ class EventModel {
 }
 
 const eventModel = new EventModel();
+
 export default eventModel;
