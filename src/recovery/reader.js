@@ -5,6 +5,13 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import eventModel  from '../model/index.js';
 
+function getJsonSafe(json, fallback){
+  try {
+    return JSON.parse(json)
+  } catch (error) {
+    return fallback
+  }
+}
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const filepath = path.resolve(__dirname, '../../logs-merge/index.log');
@@ -14,14 +21,6 @@ const readInterface = readline.createInterface({
   output: false,
   console: false
 });
-
-function getJsonSafe(json, fallback){
-  try {
-    return JSON.parse(json)
-  } catch (error) {
-    return fallback
-  }
-}
 
 readInterface.on('line', function(line) {
   const json = line.replace('info:', '');
