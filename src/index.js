@@ -11,10 +11,10 @@ const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 一分钟内
   max: 300, // 最多访问 300 次
   message: "访问过于频繁，请稍后再试。",
-});
+});s
 
-// 应用限制 IP 访问频率中间件
-// app.use(limiter);
+// 应用限制 IP 访问频率中间件 性能测试时请关闭此插件
+app.use(limiter);
 
 // text 解析
 app.use(express.text());
@@ -26,7 +26,6 @@ app.use(middlewareCors);
 app.get("/", (req, res) => {
   res.send("Hello Express");
 });
-
 
 app.use(routerCollector)
 app.use(routerAnalysis)
