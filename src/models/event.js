@@ -1,7 +1,14 @@
 import sqlite3 from "sqlite3";
 import LRU from "../utils/LRU.js";
+import {
+  generateLast24Hours,
+  generateLast4Weeks,
+  generateLast6Months,
+  generateLast7Days,
+} from "../utils/date.js";
 
 const cacheService = new LRU();
+const USE_CACHE = true;
 
 export function createRow(vo) {
   const row = {
@@ -64,13 +71,12 @@ class EventModel {
     return new Promise((resolve, reject) => {
       this.connection.run(query, (err, result) => {
         if (err) {
-          reject(err)
+          reject(err);
         } else {
-          resolve(result)
+          resolve(result);
         }
       });
-    })
-    
+    });
   }
 
   addEvent(event) {
@@ -106,30 +112,25 @@ class EventModel {
       event.screen_height,
       event.viewport_width,
       event.viewport_height,
-    ]
+    ];
     return new Promise((resolve, reject) => {
-      this.connection.all(
-        query,
-        params,
-        (err, result) => {
-          if (err) {
-            reject(err)
-          } else {
-            resolve(result)
-          }
+      this.connection.all(query, params, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
         }
-      );  
-    })
-    
+      });
+    });
   }
 
-  addEvents(events) {  
-    if (!Array.isArray(events) || events.length === 0) {  
-        console.log("No events to add.");  
-        return;  
-    }  
+  addEvents(events) {
+    if (!Array.isArray(events) || events.length === 0) {
+      console.log("No events to add.");
+      return;
+    }
 
-    // 创建插入语句  
+    // 创建插入语句
     const query = `  
     INSERT INTO events (  
       event_id, event_time,  
@@ -137,58 +138,61 @@ class EventModel {
       lib, lib_method, lib_version, is_first_day,  
       latest_referrer, url, url_path, title,  
       screen_width, screen_height, viewport_width, viewport_height  
-    ) VALUES `;  
+    ) VALUES `;
 
-    // 生成占位符和参数数组  
-    const placeholders = events.map(() => "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").join(", ");  
-    const params = [];  
+    // 生成占位符和参数数组
+    const placeholders = events
+      .map(() => "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+      .join(", ");
+    const params = [];
 
-    // 填充参数数组  
-    events.forEach(event => {  
-        params.push(  
-            event.event_id,  
-            event.event_time,  
-            event.aa_id,  
-            event.cookie_id,  
-            event.device_id,  
-            event.lib,  
-            event.lib_method,  
-            event.lib_version,  
-            event.is_first_day,  
-            event.latest_referrer,  
-            event.url,  
-            event.url_path,  
-            event.title,  
-            event.screen_width,  
-            event.screen_height,  
-            event.viewport_width,  
-            event.viewport_height  
-        );  
-    });  
+    // 填充参数数组
+    events.forEach((event) => {
+      params.push(
+        event.event_id,
+        event.event_time,
+        event.aa_id,
+        event.cookie_id,
+        event.device_id,
+        event.lib,
+        event.lib_method,
+        event.lib_version,
+        event.is_first_day,
+        event.latest_referrer,
+        event.url,
+        event.url_path,
+        event.title,
+        event.screen_width,
+        event.screen_height,
+        event.viewport_width,
+        event.viewport_height
+      );
+    });
 
-    // 完整的查询  
-    const fullQuery = query + placeholders;  
+    // 完整的查询
+    const fullQuery = query + placeholders;
     return new Promise((resolve, reject) => {
       this.connection.all(fullQuery, params, (err, result) => {
         if (err) {
-          reject(err)
+          reject(err);
         } else {
-          console.log(`${events.length} events added`);  
-          resolve(result)
+          console.log(`${events.length} events added`);
+          resolve(result);
         }
-      });  
-    })
-    
-}  
+      });
+    });
+  }
 
   async getTop10() {
     const CACHE_KEY_TOP10 = "cache-pv-top10";
-    const result = cacheService.get(CACHE_KEY_TOP10);
-    if (result) {
-      if (result instanceof Promise) {
-        return result;
+    if (USE_CACHE) {
+      const result = cacheService.get(CACHE_KEY_TOP10);
+      if (result) {
+        if (result instanceof Promise) {
+          return result;
+        }
+        return Promise.resolve(result);
       }
-      return Promise.resolve(result);
     }
     const req = new Promise((resolve, reject) => {
       const query = `
@@ -228,38 +232,46 @@ class EventModel {
 
   async getHour24() {
     const CACHE_KEY_PVUV = "cache-pvuv-hour24";
-    const result = cacheService.get(CACHE_KEY_PVUV);
-    if (result) {
-      if (result instanceof Promise) {
-        return result;
+    if (USE_CACHE) {
+      const result = cacheService.get(CACHE_KEY_PVUV);
+      if (result) {
+        if (result instanceof Promise) {
+          return result;
+        }
+        return Promise.resolve(result);
       }
-      return Promise.resolve(result);
     }
+    const startTime = new Date(generateLast24Hours()[0]);
     const req = new Promise((resolve, reject) => {
       const query = `
-      WITH RECURSIVE hour_range AS (  
-          SELECT strftime('%Y-%m-%d %H:00:00', 'now', 'localtime', '-23 hours') AS hour_start  -- 开始于 24小时前  
-          UNION ALL  
-          SELECT strftime('%Y-%m-%d %H:00:00', hour_start, '+1 hour')  -- 每次递归增加1小时  
-          FROM hour_range   
-          WHERE hour_start < strftime('%Y-%m-%d %H:00:00', 'now', 'localtime')  -- 直到当前小时  
-      )  
       SELECT   
-          hr.hour_start as hour,  
-          COALESCE(COUNT(e.event_id), 0) AS pv,  
-          COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv  
-      FROM hour_range hr  
-      LEFT JOIN EVENTS e   
-          ON hr.hour_start = strftime('%Y-%m-%d %H:00:00', DATETIME(e.event_time / 1000, 'unixepoch', '+8 hours'), 'localtime')  
-          AND e.event_id = '$pageview'  
-      GROUP BY hr.hour_start  
-      ORDER BY hr.hour_start;`;
+        strftime('%Y-%m-%d %H', DATETIME(e.event_time / 1000, 'unixepoch', '+8 hours')) AS hour,
+        COUNT(e.event_id) AS pv,  
+        COUNT(DISTINCT e.aa_id) AS uv  
+      FROM EVENTS e  
+      WHERE
+        e.event_time > ${startTime.getTime()} 
+        AND
+        e.event_id = '$pageview'  
+      GROUP BY hour  
+      ORDER BY hour;`;
       this.connection.all(query, (err, rows) => {
         if (err) {
           reject(err);
         } else {
-          cacheService.set(CACHE_KEY_PVUV, rows);
-          resolve(rows);
+          const map = {};
+          rows.forEach((row) => {
+            map[row.hour] = row;
+          });
+          const result = generateLast24Hours().map((hour) => {
+            return {
+              hour,
+              pv: map[hour]?.pv || 0,
+              uv: map[hour]?.uv || 0,
+            };
+          });
+          cacheService.set(CACHE_KEY_PVUV, result);
+          resolve(result);
         }
       });
     });
@@ -269,39 +281,46 @@ class EventModel {
 
   async getDay7() {
     const CACHE_KEY_PVUV = "cache-pvuv-day7";
-    const result = cacheService.get(CACHE_KEY_PVUV);
-    if (result) {
-      if (result instanceof Promise) {
-        return result;
+    if (USE_CACHE) {
+      const result = cacheService.get(CACHE_KEY_PVUV);
+      if (result) {
+        if (result instanceof Promise) {
+          return result;
+        }
+        return Promise.resolve(result);
       }
-      return Promise.resolve(result);
     }
+    const startTime = new Date(generateLast7Days()[0]);
     const req = new Promise((resolve, reject) => {
       const query = `
-      WITH RECURSIVE date_range AS (  
-        SELECT 
-          DATE('now', '-6 days') AS DATE   -- 开始日期为 7 天前  
-        UNION ALL
-          SELECT DATE(DATE, '+1 day')   
-        FROM date_range
-        WHERE DATE < DATE('now')                -- 直到今天  
-      )  
       SELECT   
-          dr.DATE as day,  
+          strftime('%Y-%m-%d', DATETIME(e.event_time / 1000, 'unixepoch', '+8 hours'))  as day,
           COALESCE(COUNT(e.event_id), 0) AS pv,  
-          COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv  
-      FROM date_range dr  
-      LEFT JOIN EVENTS e   
-          ON dr.DATE = DATE(DATETIME(e.event_time / 1000, 'unixepoch', '+8 hours'))  
-          AND e.event_id = '$pageview'  
-      GROUP BY dr.DATE  
-      ORDER BY dr.DATE;`;
+          COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv 
+      FROM EVENTS e  
+      WHERE
+        e.event_time > ${startTime.getTime()}
+        AND
+        e.event_id = '$pageview'  
+      GROUP BY day  
+      ORDER BY day;`;
       this.connection.all(query, (err, rows) => {
         if (err) {
           reject(err);
         } else {
-          cacheService.set(CACHE_KEY_PVUV, rows);
-          resolve(rows);
+          const map = {};
+          rows.forEach((row) => {
+            map[row.day] = row;
+          });
+          const result = generateLast7Days().map((day) => {
+            return {
+              day,
+              pv: map[day]?.pv || 0,
+              uv: map[day]?.uv || 0,
+            };
+          });
+          cacheService.set(CACHE_KEY_PVUV, result);
+          resolve(result);
         }
       });
     });
@@ -311,40 +330,46 @@ class EventModel {
 
   getWeek4() {
     const CACHE_KEY_PVUV = "cache-pvuv-week4";
-    const result = cacheService.get(CACHE_KEY_PVUV);
-    if (result) {
-      if (result instanceof Promise) {
-        return result;
+    if (USE_CACHE) {
+      const result = cacheService.get(CACHE_KEY_PVUV);
+      if (result) {
+        if (result instanceof Promise) {
+          return result;
+        }
+        return Promise.resolve(result);
       }
-      return Promise.resolve(result);
     }
+    const startTime = new Date(generateLast4Weeks()[0]);
     const req = new Promise((resolve, reject) => {
       const query = `
-      WITH RECURSIVE week_range AS (  
-        SELECT 
-          DATE('now', 'weekday 0', '-27 days') AS week_start  -- 获取 28 天前的周日  
-        UNION ALL
-          SELECT DATE(week_start, '+7 days')  
-        FROM week_range   
-        WHERE week_start < DATE('now', 'weekday 1')  -- 直到当前周的周日  
-      )  
       SELECT   
-        wr.week_start as week_start,
+        strftime('%Y-%W', DATETIME(e.event_time / 1000, 'unixepoch', '+8 hours')) as week,
         COALESCE(COUNT(e.event_id), 0) AS pv,  
         COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv  
-      FROM week_range wr  
-      LEFT JOIN EVENTS e 
-        ON e.event_time >= (strftime('%s', wr.week_start) * 1000)  -- 从周一的 0 点开始  
-        AND e.event_time < (strftime('%s', DATE(wr.week_start, '+7 days')) * 1000)  -- 到下周一的 0 点  
-        AND e.event_id = '$pageview'  
-      GROUP BY wr.week_start  
-      ORDER BY wr.week_start;`;
+      FROM EVENTS e
+      WHERE
+        e.event_time > ${startTime.getTime()} 
+        AND 
+        e.event_id = '$pageview'  
+      GROUP BY week  
+      ORDER BY week;`;
       this.connection.all(query, (err, rows) => {
         if (err) {
           reject(err);
         } else {
-          cacheService.set(CACHE_KEY_PVUV, rows);
-          resolve(rows);
+          const map = {};
+          rows.forEach((row) => {
+            map[row.week] = row;
+          });
+          const result = generateLast4Weeks().map((week) => {
+            return {
+              week,
+              pv: map[week]?.pv || 0,
+              uv: map[week]?.uv || 0,
+            };
+          });
+          cacheService.set(CACHE_KEY_PVUV, result);
+          resolve(result);
         }
       });
     });
@@ -352,41 +377,48 @@ class EventModel {
     return req;
   }
 
-
   getMonth6() {
     const CACHE_KEY_PVUV = "cache-pvuv-month6";
-    const result = cacheService.get(CACHE_KEY_PVUV);
-    if (result) {
-      if (result instanceof Promise) {
-        return result;
+    if (USE_CACHE) {
+      const result = cacheService.get(CACHE_KEY_PVUV);
+      if (result) {
+        if (result instanceof Promise) {
+          return result;
+        }
+        return Promise.resolve(result);
       }
-      return Promise.resolve(result);
     }
+    const startTime = new Date(generateLast6Months()[0]);
     const req = new Promise((resolve, reject) => {
       const query = `
-      WITH RECURSIVE month_range AS (  
-          SELECT DATE('now', 'start of month', '-5 months') AS month_start  -- 6 个月前的月初  
-          UNION ALL  
-          SELECT DATE(month_start, '+1 month')  
-          FROM month_range   
-          WHERE month_start < DATE('now', 'start of month')  -- 直到当前月的月初  
-      )  
       SELECT   
-          strftime('%Y-%m', month_start) AS month,  -- 格式化为 YYYY-MM  
+          strftime('%Y-%m', DATETIME(e.event_time / 1000, 'unixepoch', '+8 hours')) AS month,
           COALESCE(COUNT(e.event_id), 0) AS pv,  -- 访问量  
           COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv  -- 独立用户数  
-      FROM month_range mr  
-      LEFT JOIN EVENTS e   
-          ON mr.month_start = DATE(DATETIME(e.event_time / 1000, 'unixepoch', '+8 hours'), 'start of month')  -- 确保匹配到每月的月初  
-          AND e.event_id = '$pageview'  
+      FROM EVENTS e
+      WHERE
+        e.event_time > ${startTime.getTime()} 
+        AND 
+        e.event_id = '$pageview'  
       GROUP BY month  
       ORDER BY month;`;
       this.connection.all(query, (err, rows) => {
         if (err) {
           reject(err);
         } else {
-          cacheService.set(CACHE_KEY_PVUV, rows);
-          resolve(rows);
+          const map = {};
+          rows.forEach((row) => {
+            map[row.month] = row;
+          });
+          const result = generateLast6Months().map((month) => {
+            return {
+              month,
+              pv: map[month]?.pv || 0,
+              uv: map[month]?.uv || 0,
+            };
+          });
+          cacheService.set(CACHE_KEY_PVUV, result);
+          resolve(result);
         }
       });
     });
