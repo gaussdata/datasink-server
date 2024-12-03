@@ -10,6 +10,8 @@ import { setMinutes, startOfWeek, subHours, subWeeks } from "date-fns";
 
 const cacheService = new LRU();
 const USE_CACHE = true;
+const TIME_CACHE_ONE_MIN = 60 * 1000;
+const TIME_CACHE_ONE_HOUR = 60 * TIME_CACHE_ONE_MIN;
 
 export function createRow(vo) {
   const row = {
@@ -271,7 +273,7 @@ class EventModel {
               uv: map[hour]?.uv || 0,
             };
           });
-          cacheService.set(CACHE_KEY_PVUV, result);
+          cacheService.set(CACHE_KEY_PVUV, result, TIME_CACHE_ONE_MIN); // 缓存 1 分钟
           resolve(result);
         }
       });
@@ -320,7 +322,7 @@ class EventModel {
               uv: map[day]?.uv || 0,
             };
           });
-          cacheService.set(CACHE_KEY_PVUV, result);
+          cacheService.set(CACHE_KEY_PVUV, result, TIME_CACHE_ONE_HOUR); // 缓存 1 小时
           resolve(result);
         }
       });
@@ -369,7 +371,7 @@ class EventModel {
               uv: map[week]?.uv || 0,
             };
           });
-          cacheService.set(CACHE_KEY_PVUV, result);
+          cacheService.set(CACHE_KEY_PVUV, result, TIME_CACHE_ONE_HOUR); // 缓存 1 小时
           resolve(result);
         }
       });
@@ -418,7 +420,7 @@ class EventModel {
               uv: map[month]?.uv || 0,
             };
           });
-          cacheService.set(CACHE_KEY_PVUV, result);
+          cacheService.set(CACHE_KEY_PVUV, result, TIME_CACHE_ONE_HOUR); // 缓存 1 小时
           resolve(result);
         }
       });

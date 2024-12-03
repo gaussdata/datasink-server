@@ -1,6 +1,6 @@
 export default class LRU {
-  constructor(max = 10, ttl = 10 * 1000) {
-    // 默认 TTL 设置为 10 * 1000 毫秒（即 10 秒钟）
+  ttl = 60 * 1000; // 默认 TTL 设置为 60 * 1000 毫秒（即 60 秒钟）
+  constructor(max = 10, ttl = 60 * 1000) {
     this.max = max;
     this.ttl = ttl;
     this.cache = new Map();
@@ -9,9 +9,9 @@ export default class LRU {
   get(key) {
     const item = this.cache.get(key);
     if (item !== undefined) {
-      const { value, timestamp } = item;
+      const { value, timestamp, ttl } = item;
       // 检查是否过期
-      if (Date.now() - timestamp < this.ttl) {
+      if (Date.now() - timestamp < ttl) {
         // 刷新缓存项，如果没有过期
         this.cache.delete(key);
         this.cache.set(key, { value, timestamp });
@@ -24,7 +24,7 @@ export default class LRU {
     return undefined; // 如果没有找到有效的项，返回 undefined
   }
 
-  set(key, val) {
+  set(key, val, ttl = this.ttl) {
     // 如果缓存中已存在，删除旧项
     if (this.cache.has(key)) {
       this.cache.delete(key);
@@ -33,7 +33,7 @@ export default class LRU {
       this.evict();
     }
     // 将项和当前时间戳一起存储
-    this.cache.set(key, { value: val, timestamp: Date.now() });
+    this.cache.set(key, { value: val, timestamp: Date.now(), ttl: ttl});
   }
 
   evict() {
