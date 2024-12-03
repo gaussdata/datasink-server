@@ -15,7 +15,7 @@ const limiter = rateLimit({
 });
 
 // 应用限制 IP 访问频率中间件 性能测试时请关闭此插件
-app.use(limiter);
+// app.use(limiter);
 
 // text 解析
 app.use(express.text());

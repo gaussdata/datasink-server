@@ -1,7 +1,6 @@
 // 导入需要的函数
 import {
   format,
-  setHours,
   startOfWeek,
   subDays,
   subHours,
@@ -21,8 +20,6 @@ export const generateLast24Hours = () => {
   return hoursArray;
 };
 
-console.log(generateLast24Hours());
-
 // 过去 7 天
 export const generateLast7Days = () => {
   const daysArray = [];
@@ -34,8 +31,6 @@ export const generateLast7Days = () => {
   }
   return daysArray;
 };
-
-console.log(generateLast7Days());
 
 // 过去 4 周
 export const generateLast4Weeks = () => {
@@ -49,8 +44,6 @@ export const generateLast4Weeks = () => {
   return daysArray;
 };
 
-console.log(generateLast4Weeks());
-
 // 过去 6 月
 export const generateLast6Months = () => {
   const daysArray = [];
@@ -62,5 +55,3 @@ export const generateLast6Months = () => {
   }
   return daysArray;
 };
-
-console.log(generateLast6Months());

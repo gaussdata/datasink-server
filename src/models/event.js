@@ -6,6 +6,7 @@ import {
   generateLast6Months,
   generateLast7Days,
 } from "../utils/date.js";
+import { setMinutes, startOfWeek, subHours, subWeeks } from "date-fns";
 
 const cacheService = new LRU();
 const USE_CACHE = true;
@@ -241,7 +242,7 @@ class EventModel {
         return Promise.resolve(result);
       }
     }
-    const startTime = new Date(generateLast24Hours()[0]);
+    const startTime = new Date(setMinutes(subHours(new Date(), 23), 0));
     const req = new Promise((resolve, reject) => {
       const query = `
       SELECT   
@@ -339,7 +340,7 @@ class EventModel {
         return Promise.resolve(result);
       }
     }
-    const startTime = new Date(generateLast4Weeks()[0]);
+    const startTime = new Date(startOfWeek(subWeeks(new Date(), 3), 0));
     const req = new Promise((resolve, reject) => {
       const query = `
       SELECT   
