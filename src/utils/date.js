@@ -11,7 +11,7 @@ import {
 // 生成过去 24 小时的数组
 export const generateLast24Hours = () => {
   const hoursArray = [];
-  for (let i = 23; i >= 0; i--) {
+  for (let i = 12; i >= -12; i--) {
     // 计算当前时间减去 i 小时
     const date = subHours(new Date(), i)
     const formattedDate = format(date, "yyyy-MM-dd HH");

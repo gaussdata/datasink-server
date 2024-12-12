@@ -201,13 +201,14 @@ class EventModel {
       const query = `
       WITH top_pages AS (  
           SELECT   
-              title AS page_title,  
+              title AS page_title,
+              url AS page_url,
               COUNT(*) AS view_count  
           FROM EVENTS  
           WHERE event_id = '$pageview'   
             AND title IS NOT NULL        -- 确保标题不为空  
             AND title <> ''              -- 确保标题不为空字符串  
-          GROUP BY title  
+          GROUP BY url  
           ORDER BY view_count DESC  
           LIMIT 10  
       ),  
@@ -215,7 +216,8 @@ class EventModel {
           SELECT SUM(view_count) AS total_view_count  
           FROM top_pages  
       )  
-      SELECT   
+      SELECT
+          tp.page_url,
           tp.page_title,  
           tp.view_count,  
           tp.view_count * 100.0 / tc.total_view_count AS view_percent  

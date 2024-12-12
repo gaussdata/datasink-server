@@ -15,13 +15,13 @@ const limiter = rateLimit({
 });
 
 // 应用限制 IP 访问频率中间件 性能测试时请关闭此插件
-// app.use(limiter);
+// app.use(limiter); // use nginx
 
 // text 解析
 app.use(express.text());
 
 // cors 跨域
-app.use(middlewareCors);
+// app.use(middlewareCors); // use nginx
 
 // 当客户端以get方式访问/路由时
 app.get("/", (req, res) => {
