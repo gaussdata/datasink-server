@@ -234,6 +234,55 @@ class EventModel {
     cacheService.set(CACHE_KEY_TOP10, req);
     return req;
   }
+  async getTop10Article() {
+    const CACHE_KEY_TOP10 = "cache-article-top10";
+    if (USE_CACHE) {
+      const result = cacheService.get(CACHE_KEY_TOP10);
+      if (result) {
+        if (result instanceof Promise) {
+          return result;
+        }
+        return Promise.resolve(result);
+      }
+    }
+    const req = new Promise((resolve, reject) => {
+      const query = `
+      WITH top_pages AS (  
+          SELECT   
+              title AS page_title,
+              url AS page_url,
+              COUNT(*) AS view_count  
+          FROM EVENTS  
+          WHERE event_id = '$pageview'   
+            AND title IS NOT NULL        -- 确保标题不为空  
+            AND title <> ''              -- 确保标题不为空字符串
+            AND url like '%html'
+          GROUP BY url  
+          ORDER BY view_count DESC  
+          LIMIT 10  
+      ),  
+      total_count AS (  
+          SELECT SUM(view_count) AS total_view_count  
+          FROM top_pages  
+      )  
+      SELECT
+          tp.page_url,
+          tp.page_title,  
+          tp.view_count,  
+          tp.view_count * 100.0 / tc.total_view_count AS view_percent  
+      FROM top_pages tp, total_count tc;`;
+      this.connection.all(query, (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          cacheService.set(CACHE_KEY_TOP10, rows);
+          resolve(rows);
+        }
+      });
+    });
+    cacheService.set(CACHE_KEY_TOP10, req);
+    return req;
+  }
 
   async getHour24() {
     const CACHE_KEY_PVUV = "cache-pvuv-hour24";
