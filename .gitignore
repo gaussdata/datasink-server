@@ -1,9 +1,11 @@
 node_modules
 
 
-db/log.db
+db/sqlite3.db
+db/duckdb.db
 
 logs/*.log
 logs-merge/*.og
 
 package-lock.json
+pnpm-lock.yaml

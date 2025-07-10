@@ -1,25 +1,7 @@
 # Test
 
-### Top10
-GET http://localhost:3000/top10 HTTP/1.1
+### Collect
+GET http://localhost:3000/collector/t HTTP/1.1
 
-### Top10
-GET http://localhost:3000/pv-top10 HTTP/1.1
-
-### Top10 Article
-GET http://localhost:3000/article-top10 HTTP/1.1
-
-### PVUV
-GET http://localhost:3000/pvuv HTTP/1.1
-
-### Hour24
-GET http://localhost:3000/pvuv-hour24 HTTP/1.1
-
-### Day7
-GET http://localhost:3000/pvuv-day7 HTTP/1.1
-
-### Week4
-GET http://localhost:3000/pvuv-week4 HTTP/1.1
-
-### Month6
-GET http://localhost:3000/pvuv-month6 HTTP/1.1
+### COUNT
+GET http://localhost:3000/analysis/count HTTP/1.1

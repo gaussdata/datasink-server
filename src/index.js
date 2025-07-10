@@ -3,6 +3,7 @@ import rateLimit from "express-rate-limit";
 import routerCollector from "./routers/collector.js";
 import routerAnalysis from "./routers/analysis.js";
 import middlewareCors from "./middlewares/cors.js";
+import middlewareLog from "./middlewares/log.js";
 
 const app = express();
 
@@ -21,15 +22,17 @@ const limiter = rateLimit({
 app.use(express.text());
 
 // cors 跨域
-// app.use(middlewareCors); // use nginx
+app.use(middlewareCors); // use nginx
+
+// app.use(middlewareLog);
 
 // 当客户端以get方式访问/路由时
 app.get("/", (req, res) => {
   res.send("Hello Express");
 });
 
-app.use(routerCollector)
-app.use(routerAnalysis)
+app.use('/collector', routerCollector)
+app.use('/analysis', routerAnalysis)
 
 // 程序监听3000端口
 app.listen(3000, () => {

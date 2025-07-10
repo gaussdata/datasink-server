@@ -1,4 +1,4 @@
-export default class LRU {
+export default new class Cache {
   ttl = 60 * 1000; // 默认 TTL 设置为 60 * 1000 毫秒（即 60 秒钟）
   constructor(max = 10, ttl = 60 * 1000) {
     this.max = max;
@@ -43,5 +43,9 @@ export default class LRU {
 
   first() {
     return this.cache.keys().next().value;
+  }
+
+  delete(key) {
+    this.cache.delete(key);
   }
 }

@@ -1,19 +1,23 @@
 import winston from 'winston';
-import 'winston-daily-rotate-file';
+
+// 定义不同日志级别的文件路径
+const logLevels = {
+    debug: 'access.log' // 新增 access 日志
+};
+
+// 为每个日志级别创建对应的文件传输
+const transports = Object.entries(logLevels).map(([level, filename]) => {
+    return new winston.transports.File({
+        level: level,
+        filename: `logs/${filename}`,
+        format: winston.format.simple()
+    });
+});
 
 const logger = winston.createLogger({
     level: 'debug',
     format: winston.format.simple(),
-    transports: [
-        new winston.transports.Console(),
-        new winston.transports.DailyRotateFile({
-          level: 'info',
-          dirname: 'logs',
-          filename: 'point-%DATE%.log',
-          datePattern: 'YYYY-MM-DD',
-          maxSize: '10M'
-      })
-    ]
+    transports: transports
 });
 
 export default logger;
