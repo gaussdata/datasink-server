@@ -24,7 +24,7 @@ app.use(express.text());
 // cors 跨域
 app.use(middlewareCors); // use nginx
 
-// app.use(middlewareLog);
+app.use(middlewareLog);
 
 // 当客户端以get方式访问/路由时
 app.get("/", (req, res) => {
