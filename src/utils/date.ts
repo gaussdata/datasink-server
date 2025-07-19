@@ -36,7 +36,7 @@ export const generateLastDays = (count = 7) => {
 export const generateLastWeeks = (count = 4) => {
   const daysArray = [];
   for (let i = count - 1; i >= 0; i--) {
-    const date = startOfWeek(subWeeks(new Date(), i), 0)
+    const date = startOfWeek(subWeeks(new Date(), i))
     // 格式化为 'yyyy-ww'
     const formattedDate = format(date, "yyyy-ww");
     daysArray.push(formattedDate);

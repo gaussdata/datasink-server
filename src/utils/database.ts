@@ -4,7 +4,8 @@ const file = "db/sqlite3.db";
 
 export class Database {
 
-  static connection = null;
+  static connection: sqlite3.Database;
+
 
   static async getConnection() {
     if (!this.connection) {

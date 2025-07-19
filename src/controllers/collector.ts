@@ -1,6 +1,6 @@
 import eventModel from "../models/event.js";
 
-export function createRow(vo) {
+export function createRow(vo: any) {
   const dto = {
     event_id: vo.head?.code,
     event_time: vo.head?.time,
@@ -26,6 +26,12 @@ export function createRow(vo) {
 }
 
 class Collector {
+  eventQueue: any[];
+  BATCH_SIZE: number;
+  BATCH_COUNT: number;
+  QUEUE_MAX_LENGTH: number;
+  WRITE_INTERVAL: number;
+  
   // 队列初始化
   constructor() {
     this.eventQueue = [];
@@ -43,7 +49,8 @@ class Collector {
   }
 
   // 添加事件到队列
-  addEvent(row) {
+  addEvent(row: any) {
+
     const event = createRow(row);
     // 如果接近队列上限，裁切一半数据
     if (this.eventQueue.length > this.QUEUE_MAX_LENGTH) {

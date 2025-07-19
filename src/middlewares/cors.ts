@@ -1,7 +1,7 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 const router = express.Router();
 
-function cors(req, res, next) {
+function cors(req: Request, res: Response, next: NextFunction) {
   // 设置允许跨域的域名，具体的域名更安全
   res.header("Access-Control-Allow-Origin", req.headers.origin || "*"); // 替换为你具体的域名
   if (req.method === "OPTIONS") {

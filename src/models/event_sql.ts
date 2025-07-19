@@ -40,7 +40,7 @@ WHERE
     e.event_id = '$page_view'
 `
 
-export const createHour24Sql = timestamp => `
+export const createHour24Sql = (timestamp: number) => `
 SELECT
     date(e.event_time/1000, 'unixepoch') AS hour,
     COALESCE(COUNT(1), 0) AS pv,
@@ -53,7 +53,7 @@ GROUP BY hour
 ORDER BY hour
 `
 
-export const createDay30Sql = timestamp => `
+export const createDay30Sql = (timestamp: number) => `
 SELECT
     date(e.event_time/1000, 'unixepoch') AS day,
     COALESCE(COUNT(1), 0) AS pv,
@@ -67,7 +67,7 @@ GROUP BY day
 ORDER BY day
 `
 
-export const createWeek24Sql = timestamp => `
+export const createWeek24Sql = (timestamp: number) => `
 SELECT
     date(e.event_time/1000, 'unixepoch') AS week,
     COALESCE(COUNT(1), 0) AS pv,
@@ -81,7 +81,7 @@ ORDER BY week
 `
 
 
-export const createMonth24Sql = timestamp => `
+export const createMonth24Sql = (timestamp: number) => `
 SELECT
     date(e.event_time/1000, 'unixepoch') AS month,
     COALESCE(COUNT(1), 0) AS pv,
@@ -94,14 +94,15 @@ GROUP BY month
 ORDER BY month
 `
 
-export const createTopPagesSql = timestamp => `
+export const createTopPagesSql = (start_time: number, end_time: number) => `
 SELECT
     e.url,
     COUNT(1) AS pv
 FROM events e
 WHERE
     e.event_id = '$page_view'
-    AND e.event_time >= ${timestamp}
+    AND e.event_time >= ${start_time}
+    AND e.event_time <= ${end_time}
 GROUP BY e.url
 ORDER BY pv DESC
 LIMIT 10

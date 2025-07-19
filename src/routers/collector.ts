@@ -21,7 +21,7 @@ router.post("/t", (req, res) => {
   let list;
   try {
     list = JSON.parse(jsonData);
-    list.forEach((row) => {
+    list.forEach((row: any) => {
       collector.addEvent(row);
     });
   } catch (error) {

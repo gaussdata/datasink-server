@@ -1,12 +1,15 @@
 export default new class Cache {
+  max = 10;
   ttl = 60 * 1000; // 默认 TTL 设置为 60 * 1000 毫秒（即 60 秒钟）
+  cache: Map<string, { value: any, timestamp: number, ttl: number }> = new Map();
+
   constructor(max = 10, ttl = 60 * 1000) {
     this.max = max;
     this.ttl = ttl;
     this.cache = new Map();
   }
 
-  get(key) {
+  get(key:string) {
     const item = this.cache.get(key);
     if (item !== undefined) {
       const { value, timestamp, ttl } = item;
@@ -14,7 +17,7 @@ export default new class Cache {
       if (Date.now() - timestamp < ttl) {
         // 刷新缓存项，如果没有过期
         this.cache.delete(key);
-        this.cache.set(key, { value, timestamp });
+        this.cache.set(key, { value, timestamp, ttl });
         return value;
       } else {
         // 如果过期，删除该项
@@ -24,7 +27,7 @@ export default new class Cache {
     return undefined; // 如果没有找到有效的项，返回 undefined
   }
 
-  set(key, val, ttl = this.ttl) {
+  set(key:string, val: any, ttl = this.ttl) {
     // 如果缓存中已存在，删除旧项
     if (this.cache.has(key)) {
       this.cache.delete(key);
@@ -38,14 +41,16 @@ export default new class Cache {
 
   evict() {
     const key = this.first();
-    this.cache.delete(key);
+    if (key) {
+      this.cache.delete(key);
+    }
   }
 
   first() {
     return this.cache.keys().next().value;
   }
 
-  delete(key) {
+  delete(key:string) {
     this.cache.delete(key);
   }
 }

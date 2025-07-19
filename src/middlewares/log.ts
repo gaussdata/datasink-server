@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import logger from "../utils/logger.js"
+import logger from "../utils/logger"
 
 /**
  * 日志中间件
@@ -8,7 +8,7 @@ import logger from "../utils/logger.js"
  * @param {*} res 响应对象
  * @param {*} next 下一个中间件
  */         
-function log(req, res, next) {
+function log(req: express.Request, res: express.Response, next: express.NextFunction) {
   const { method, url } = req; // 获取请求方法、URL和IP地址  
   const start = Date.now(); // 记录请求开始时间
   res.on("finish", () => { // 监听响应结束事件

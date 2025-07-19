@@ -1,12 +1,12 @@
 import { Database } from '../utils/database.js';
 import { createCountSql, createEventsSql, createInsertSql, createTopPagesSql, createViewSql } from './event_sql.js';
 
-function rows2Result(rows, dates) {
-  const map = {};
-  rows.forEach((row) => {
+function rows2Result(rows: any, dates: any) {
+  const map: any = {};
+  rows.forEach((row: any) => {
     map[row.day] = row;
   });
-  return dates.map((day) => {
+  return dates.map((day: any) => {
     return {
       day,
       pv: map[day]?.pv || 0,
@@ -17,6 +17,7 @@ function rows2Result(rows, dates) {
 
 
 class EventModel {
+
 
   constructor() {
     this.init();
@@ -31,7 +32,7 @@ class EventModel {
     const query = createEventsSql;
     const connection = await Database.getConnection()
     return new Promise((resolve, reject) => {
-      connection.run(query, (err, result) => {
+      connection.run(query, (err: any, result: any) => {
         if (err) {
           console.log('create table error', err);
           reject(err);
@@ -43,11 +44,11 @@ class EventModel {
     });
   }
 
-  addEvent(event) {
+  addEvent(event: any) {
     return this.addEvents([event]); // 调用 addEvents 方法，传入单个事件数组
   }
 
-  async addEvents(events) {
+  async addEvents(events: any) {
 
     if (!Array.isArray(events) || events.length === 0) {
       console.log("No events to add.");
@@ -77,7 +78,7 @@ class EventModel {
     const query = `${createInsertSql} ${placeholders}`;
     const connection = await Database.getConnection();
     return new Promise((resolve, reject) => {
-      connection.run(query, params, (err, result) => {
+      connection.run(query, params, (err: any, result: any) => {
         if (err) {
           reject(err);
         } else {
@@ -115,11 +116,11 @@ class EventModel {
     });
   }
   
-  async getPVUV(start_time, end_time, date_level) {
+  async getPVUV(start_time: number, end_time: number, date_level: string) {
     const query = '';
     const connection = await Database.getConnection();
     return await new Promise((resolve, reject) => {
-      connection.all(query, (err, rows) => {
+      connection.all(query, (err: Error, rows: any[]) => {
         if (err) {
           reject(err);
         } else {
@@ -129,8 +130,8 @@ class EventModel {
     });
   }
 
-  async getTopPages() {
-    const query = createTopPagesSql;
+  async getTopPages(start_time: number, end_time: number) {
+    const query = createTopPagesSql(start_time, end_time);
     const connection = await Database.getConnection();
     return await new Promise((resolve, reject) => {
       connection.all(query, (err, rows) => {
@@ -141,10 +142,6 @@ class EventModel {
         }
       });
     });
-  }
-
-  close() {
-    this.connection.close();
   }
 }
 
