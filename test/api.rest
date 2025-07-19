@@ -3,5 +3,8 @@
 ### Collect
 GET http://localhost:3000/collector/t HTTP/1.1
 
-### COUNT
+### Count
 GET http://localhost:3000/analysis/count HTTP/1.1
+
+### View
+GET http://localhost:3000/analysis/view HTTP/1.1

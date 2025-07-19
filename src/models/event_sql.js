@@ -17,7 +17,6 @@ CREATE TABLE IF NOT EXISTS events
     user_agent VARCHAR
 );`;
 
-
 export const createInsertSql = `
 INSERT INTO events 
     (
@@ -39,4 +38,71 @@ SELECT
 FROM events e
 WHERE
     e.event_id = '$page_view'
+`
+
+export const createHour24Sql = timestamp => `
+SELECT
+    date(e.event_time/1000, 'unixepoch') AS hour,
+    COALESCE(COUNT(1), 0) AS pv,
+    COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv
+FROM events e
+WHERE
+    e.event_id = '$page_view'
+    AND e.event_time >= ${timestamp}
+GROUP BY hour
+ORDER BY hour
+`
+
+export const createDay30Sql = timestamp => `
+SELECT
+    date(e.event_time/1000, 'unixepoch') AS day,
+    COALESCE(COUNT(1), 0) AS pv,
+    COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv
+FROM events e
+WHERE
+    e.event_id = '$page_view'
+    AND e.event_time >= ${timestamp}
+
+GROUP BY day
+ORDER BY day
+`
+
+export const createWeek24Sql = timestamp => `
+SELECT
+    date(e.event_time/1000, 'unixepoch') AS week,
+    COALESCE(COUNT(1), 0) AS pv,
+    COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv
+FROM events e
+WHERE
+    e.event_id = '$page_view'
+    AND e.event_time >= ${timestamp}
+GROUP BY week
+ORDER BY week
+`
+
+
+export const createMonth24Sql = timestamp => `
+SELECT
+    date(e.event_time/1000, 'unixepoch') AS month,
+    COALESCE(COUNT(1), 0) AS pv,
+    COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv
+FROM events e
+WHERE
+    e.event_id = '$page_view'
+    AND e.event_time >= ${timestamp}
+GROUP BY month
+ORDER BY month
+`
+
+export const createTopPagesSql = timestamp => `
+SELECT
+    e.url,
+    COUNT(1) AS pv
+FROM events e
+WHERE
+    e.event_id = '$page_view'
+    AND e.event_time >= ${timestamp}
+GROUP BY e.url
+ORDER BY pv DESC
+LIMIT 10
 `

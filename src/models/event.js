@@ -1,5 +1,20 @@
 import { Database } from '../utils/database.js';
-import { createCountSql, createEventsSql, createInsertSql, createViewSql } from './event_sql.js';
+import { createCountSql, createEventsSql, createInsertSql, createTopPagesSql, createViewSql } from './event_sql.js';
+
+function rows2Result(rows, dates) {
+  const map = {};
+  rows.forEach((row) => {
+    map[row.day] = row;
+  });
+  return dates.map((day) => {
+    return {
+      day,
+      pv: map[day]?.pv || 0,
+      uv: map[day]?.uv || 0,
+    };
+  });
+}
+
 
 class EventModel {
 
@@ -95,6 +110,34 @@ class EventModel {
           reject(err);
         } else {
           resolve(rows[0] || { pv: 0, uv: 0 });
+        }
+      });
+    });
+  }
+  
+  async getPVUV(start_time, end_time, date_level) {
+    const query = '';
+    const connection = await Database.getConnection();
+    return await new Promise((resolve, reject) => {
+      connection.all(query, (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      });
+    });
+  }
+
+  async getTopPages() {
+    const query = createTopPagesSql;
+    const connection = await Database.getConnection();
+    return await new Promise((resolve, reject) => {
+      connection.all(query, (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
         }
       });
     });
