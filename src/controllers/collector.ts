@@ -1,29 +1,7 @@
+import { Request, Response } from "express";
 import eventModel from "../models/event.js";
-
-export function createRow(vo: any) {
-  const dto = {
-    event_id: vo.head?.code,
-    event_time: vo.head?.time,
-    //
-    aa_id: vo.head?.aaid,
-    session_id: vo.head?.sid,
-    //
-    lib: vo.head?.lib,
-    lib_version: vo.head?.lib_version,
-    //
-    url: vo.body.url,
-    title: vo.body.title,
-    referrer: vo.body.referrer,
-    //
-    screen_width: vo.body.screen_width,
-    screen_height: vo.body.screen_height,
-    viewport_width: vo.body.window_width,
-    viewport_height: vo.body.window_height,
-    // 
-    user_agent: vo.body.user_agent,
-  };
-  return dto;
-}
+// 单个请求最大大小
+const MAX_JSON_SIZE = 10 * 1024; // 10KB
 
 class Collector {
   eventQueue: any[];
@@ -31,7 +9,7 @@ class Collector {
   BATCH_COUNT: number;
   QUEUE_MAX_LENGTH: number;
   WRITE_INTERVAL: number;
-  
+
   // 队列初始化
   constructor() {
     this.eventQueue = [];
@@ -48,10 +26,35 @@ class Collector {
     this.processEventQueue();
   }
 
-  // 添加事件到队列
-  addEvent(row: any) {
+  private createRow(vo: any) {
+    const dto = {
+      event_id: vo.head?.code,
+      event_time: vo.head?.time,
+      //
+      aa_id: vo.head?.aaid,
+      session_id: vo.head?.sid,
+      //
+      lib: vo.head?.lib,
+      lib_version: vo.head?.lib_version,
+      //
+      url: vo.body.url,
+      title: vo.body.title,
+      referrer: vo.body.referrer,
+      //
+      screen_width: vo.body.screen_width,
+      screen_height: vo.body.screen_height,
+      viewport_width: vo.body.window_width,
+      viewport_height: vo.body.window_height,
+      // 
+      user_agent: vo.body.user_agent,
+    };
+    return dto;
+  }
 
-    const event = createRow(row);
+
+  // 添加事件到队列
+  private async addEvent(row: any) {
+    const event = this.createRow(row);
     // 如果接近队列上限，裁切一半数据
     if (this.eventQueue.length > this.QUEUE_MAX_LENGTH) {
       this.eventQueue = this.eventQueue.slice(0, this.QUEUE_MAX_LENGTH / 2);
@@ -60,7 +63,7 @@ class Collector {
   }
 
   // 定时处理队列的函数
-  async processEventQueue() {
+  private async processEventQueue() {
     // 如果队列为空，直接返回
     if (this.eventQueue.length === 0) {
       // 执行下一轮检查
@@ -82,7 +85,7 @@ class Collector {
       try {
         console.log(`${index} / ${batchCount} Processed ${batch.length} events`);
         // 等待异步操作完成
-        await eventModel.addEvents(batch); 
+        await eventModel.addEvents(batch);
         console.log(`${index} / ${batchCount} Recived ${batch.length} events`);
       } catch (error) {
         console.error(`${index} / ${batchCount} Error processing events:`, error);
@@ -92,6 +95,33 @@ class Collector {
     // 执行下一轮检查
     setTimeout(() => this.processEventQueue(), this.WRITE_INTERVAL);
   }
+
+  track(req: Request, res: Response) {
+
+
+    const jsonData = req.body;
+
+    if (!jsonData) {
+      return res.status(400).send("Bad Request: No parameters provided"); // 400 BAD REQUEST
+    }
+
+    if (jsonData.length > MAX_JSON_SIZE) {
+      return res.status(413).send("Content Too Large"); // 413 CONTENT TOO LARGE
+    }
+
+    let list;
+    try {
+      list = JSON.parse(jsonData);
+      list.forEach((row: any) => {
+        collector.addEvent(row);
+      });
+    } catch (error) {
+      return res.status(500).send("Internal Server Error: Failed to process data"); // 500 INTERNAL SERVER ERROR
+    }
+
+    res.send("OK");
+  }
+
 }
 
 export const collector = new Collector();
