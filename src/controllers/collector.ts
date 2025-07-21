@@ -4,26 +4,19 @@ import eventModel from "../models/event.js";
 const MAX_JSON_SIZE = 10 * 1024; // 10KB
 
 class Collector {
-  eventQueue: any[];
-  BATCH_SIZE: number;
-  BATCH_COUNT: number;
-  QUEUE_MAX_LENGTH: number;
-  WRITE_INTERVAL: number;
+  // 存储事件的队列
+  eventQueue: any[] = [];
+  // 定义队列最大长度
+  QUEUE_MAX_LENGTH: number = 20 * 1000;
+  // 定义每批写入日志的大小
+  BATCH_SIZE: number = 400;
+  // 每间隔 10 毫秒清理一轮日志
+  WRITE_INTERVAL: number = 20;
 
-  // 队列初始化
   constructor() {
-    this.eventQueue = [];
-    // 定义每批写入日志的大小
-    this.BATCH_SIZE = 200;
-    // 定义每轮最多批次
-    this.BATCH_COUNT = 50;
-    // 定义队列最大长度
-    this.QUEUE_MAX_LENGTH = this.BATCH_COUNT * this.BATCH_SIZE * 2;
-    // 每间隔 100 毫秒清理一轮日志
-    this.WRITE_INTERVAL = 100;
-
-    // 启动队列处理
-    this.processEventQueue();
+    setInterval(() => {
+      this.comsume();
+    }, this.WRITE_INTERVAL)
   }
 
   private createRow(vo: any) {
@@ -51,9 +44,8 @@ class Collector {
     return dto;
   }
 
-
-  // 添加事件到队列
-  private async addEvent(row: any) {
+  // 生产 - 添加事件到队列
+  private async produce(row: any) {
     const event = this.createRow(row);
     // 如果接近队列上限，裁切一半数据
     if (this.eventQueue.length > this.QUEUE_MAX_LENGTH) {
@@ -62,43 +54,26 @@ class Collector {
     this.eventQueue.push(event);
   }
 
-  // 定时处理队列的函数
-  private async processEventQueue() {
+  // 消费
+  private async comsume() {
     // 如果队列为空，直接返回
     if (this.eventQueue.length === 0) {
-      // 执行下一轮检查
-      setTimeout(() => this.processEventQueue(), this.WRITE_INTERVAL);
       return false;
     }
-
     // 提前分好批次
-    const batches = [];
-    while (this.eventQueue.length > 0) {
-      batches.push(this.eventQueue.splice(0, this.BATCH_SIZE));
+    const batch = this.eventQueue.splice(0, this.BATCH_SIZE)
+    try {
+      // 等待异步操作完成
+      await eventModel.addEvents(batch);
+      console.log(`Recived ${batch.length} events, remain ${ this.eventQueue.length} events`);
+    } catch (error) {
+      console.log(`Batch insert ${batch.length} events error`)
+      // 可以选择在这里重试或记录错误，具体取决于需求
     }
-
-    // 使用 for...of 循环串行处理每个批次
-    let index = 0;
-    let batchCount = batches.length;
-    for (const batch of batches) {
-      index++;
-      try {
-        console.log(`${index} / ${batchCount} Processed ${batch.length} events`);
-        // 等待异步操作完成
-        await eventModel.addEvents(batch);
-        console.log(`${index} / ${batchCount} Recived ${batch.length} events`);
-      } catch (error) {
-        console.error(`${index} / ${batchCount} Error processing events:`, error);
-        // 可以选择在这里重试或记录错误，具体取决于需求
-      }
-    }
-    // 执行下一轮检查
-    setTimeout(() => this.processEventQueue(), this.WRITE_INTERVAL);
   }
 
+  // 入口 - 处理请求
   track(req: Request, res: Response) {
-
-
     const jsonData = req.body;
 
     if (!jsonData) {
@@ -113,7 +88,7 @@ class Collector {
     try {
       list = JSON.parse(jsonData);
       list.forEach((row: any) => {
-        collector.addEvent(row);
+        collector.produce(row);
       });
     } catch (error) {
       return res.status(500).send("Internal Server Error: Failed to process data"); // 500 INTERNAL SERVER ERROR
