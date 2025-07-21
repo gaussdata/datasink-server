@@ -8,3 +8,17 @@ GET http://localhost:3000/analysis/count HTTP/1.1
 
 ### View
 GET http://localhost:3000/analysis/view HTTP/1.1
+
+### Hour
+GET http://localhost:3000/analysis/pvuv?date_level=hour HTTP/1.1
+
+### Day
+GET http://localhost:3000/analysis/pvuv?date_level=day HTTP/1.1
+
+### Week
+GET http://localhost:3000/analysis/pvuv?date_level=week HTTP/1.1
+
+
+### Month
+GET http://localhost:3000/analysis/pvuv?date_level=month HTTP/1.1
+

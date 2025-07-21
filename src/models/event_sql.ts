@@ -42,7 +42,7 @@ WHERE
 
 export const createHourSql = (start_time: number, end_time: number) => `
 SELECT
-    date(e.event_time/1000, 'unixepoch') AS hour,
+    strftime('%Y-%m-%d %H', datetime(e.event_time/1000, 'unixepoch')) AS date,
     COALESCE(COUNT(1), 0) AS pv,
     COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv
 FROM events e
@@ -50,13 +50,13 @@ WHERE
     e.event_id = '$page_view'
     AND e.event_time >= ${start_time}
     AND e.event_time <= ${end_time}
-GROUP BY hour
-ORDER BY hour
+GROUP BY date
+ORDER BY date
 `
 
 export const createDaySql = (start_time: number, end_time: number) => `
 SELECT
-    date(e.event_time/1000, 'unixepoch') AS day,
+    strftime('%Y-%m-%d', datetime(e.event_time/1000, 'unixepoch')) AS date,
     COALESCE(COUNT(1), 0) AS pv,
     COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv
 FROM events e
@@ -65,13 +65,13 @@ WHERE
     AND e.event_time >= ${start_time}
     AND e.event_time <= ${end_time}
 
-GROUP BY day
-ORDER BY day
+GROUP BY date
+ORDER BY date
 `
 
 export const createWeekSql = (start_time: number, end_time: number) => `
 SELECT
-    date(e.event_time/1000, 'unixepoch') AS week,
+    strftime('%Y-%W', datetime(e.event_time/1000, 'unixepoch')) AS date,
     COALESCE(COUNT(1), 0) AS pv,
     COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv
 FROM events e
@@ -79,15 +79,14 @@ WHERE
     e.event_id = '$page_view'
     AND e.event_time >= ${start_time}
     AND e.event_time <= ${end_time}
-GROUP BY week
-ORDER BY week
+GROUP BY date
+ORDER BY date
 `
 
 
 export const createMonthSql = (start_time: number, end_time: number) => `
-
 SELECT
-    date(e.event_time/1000, 'unixepoch') AS month,
+    strftime('%Y-%m', datetime(e.event_time/1000, 'unixepoch')) AS date,
     COALESCE(COUNT(1), 0) AS pv,
     COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv
 FROM events e
@@ -95,8 +94,8 @@ WHERE
     e.event_id = '$page_view'
     AND e.event_time >= ${start_time}
     AND e.event_time <= ${end_time}
-GROUP BY month
-ORDER BY month
+GROUP BY date
+ORDER BY date
 `
 
 export const createTopPagesSql = (start_time: number, end_time: number) => `

@@ -1,16 +1,17 @@
+import { clampStartTime, generateDaysByTime, generateHoursByTime, generateMonthsByTime, generateWeeksByTime, ONE_DAY, ONE_HOUR, ONE_MONTH, ONE_WEEK } from '@/utils/date.js';
 import { Database } from '../utils/database.js';
 import { createCountSql, createDaySql, createEventsSql, createHourSql, createInsertSql, createMonthSql, createTopPagesSql, createViewSql, createWeekSql } from './event_sql.js';
 
-function rows2Result(rows: any, dates: any) {
+function rows2Result(rows: any[], dates: string[]) {
   const map: any = {};
   rows.forEach((row: any) => {
-    map[row.day] = row;
+    map[row.date] = row;
   });
-  return dates.map((day: any) => {
+  return dates.map((date: any) => {
     return {
-      day,
-      pv: map[day]?.pv || 0,
-      uv: map[day]?.uv || 0,
+      date,
+      pv: map[date]?.pv || 0,
+      uv: map[date]?.uv || 0,
     };
   });
 }
@@ -115,32 +116,49 @@ class EventModel {
       });
     });
   }
-  
+
   async getPVUV(start_time: number, end_time: number, date_level: string) {
     let query = '';
+    let dates: string[] = [];
     switch (date_level) {
-      case 'hour':
-        query = createHourSql(start_time, end_time);
+      case 'hour': {
+        const startTime = clampStartTime(start_time, end_time, 24 * ONE_HOUR);
+        query = createHourSql(startTime, end_time);
+        dates = generateHoursByTime(startTime, end_time);
+      }
         break;
       case 'day':
-        query = createDaySql(start_time, end_time);
+        {
+          const startTime = clampStartTime(start_time, end_time, 30 * ONE_DAY);
+          query = createDaySql(startTime, end_time);
+          dates = generateDaysByTime(startTime, end_time);
+        }
         break;
-      case 'week':
+      case 'week': {
+        const startTime = clampStartTime(start_time, end_time, 24 * ONE_WEEK);
         query = createWeekSql(start_time, end_time);
+        dates = generateWeeksByTime(startTime, end_time);
+      }
         break;
-      case 'month':
-        query = createMonthSql(start_time, end_time);
+      case 'month': {
+        const startTime = clampStartTime(start_time, end_time, 24 * ONE_MONTH);
+        query = createMonthSql(startTime, end_time);
+        dates = generateMonthsByTime(startTime, end_time);
+      }
         break;
       default:
         break;
     }
+    console.log(query);
+    
     const connection = await Database.getConnection();
     return await new Promise((resolve, reject) => {
       connection.all(query, (err: Error, rows: any[]) => {
         if (err) {
           reject(err);
         } else {
-          resolve(rows);
+          console.log(rows);
+          resolve(rows2Result(rows, dates));
         }
       });
     });

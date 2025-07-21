@@ -4,7 +4,7 @@ import { query } from 'express-validator';
 export const pvuvValidators = [
     query('start_time').optional().isInt().withMessage("必须是数字"),
     query('end_time').optional().isInt().withMessage("必须是数字"),
-    query('date_level').optional().contains(['hour', 'day', 'week', 'month']).withMessage("必须是hour, day, week, month中的一个"),
+    query('date_level').optional().isIn(['hour', 'day', 'week', 'month']).withMessage("必须是hour, day, week, month中的一个"),
 ];
 
 export const topPagesValidators = [
