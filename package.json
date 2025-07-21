@@ -5,9 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && tsc-alias", 
     "start": "node dist/index.js",
-    "dev": "concurrently \"tsc --watch\" \"nodemon dist/index.js\""
+    "dev": "concurrently \"tsc --watch\" \"tsc-alias --watch\" \"nodemon dist/index.js\""
   },
   "keywords": [],
   "author": "",
@@ -27,6 +27,7 @@
     "autocannon": "^8.0.0",
     "concurrently": "^9.2.0",
     "nodemon": "^3.1.10",
+    "tsc-alias": "^1.8.16",
     "typescript": "^5.8.3"
   },
   "pnpm": {
