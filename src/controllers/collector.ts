@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import eventModel from "../models/event.js";
 // 单个请求最大大小
-const MAX_JSON_SIZE = 10 * 1024; // 10KB
+const MAX_JSON_SIZE = 100 * 1024; // 100KB
 
 class Collector {
   // 存储事件的队列
@@ -9,7 +9,7 @@ class Collector {
   // 定义队列最大长度
   QUEUE_MAX_LENGTH: number = 20 * 1000;
   // 定义每批写入日志的大小
-  BATCH_SIZE: number = 400;
+  BATCH_SIZE: number = 200;
   // 每间隔 10 毫秒清理一轮日志
   WRITE_INTERVAL: number = 20;
 

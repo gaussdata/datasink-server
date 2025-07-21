@@ -40,7 +40,7 @@ WHERE
     e.event_id = '$page_view'
 `
 
-export const createHour24Sql = (timestamp: number) => `
+export const createHourSql = (start_time: number, end_time: number) => `
 SELECT
     date(e.event_time/1000, 'unixepoch') AS hour,
     COALESCE(COUNT(1), 0) AS pv,
@@ -48,12 +48,13 @@ SELECT
 FROM events e
 WHERE
     e.event_id = '$page_view'
-    AND e.event_time >= ${timestamp}
+    AND e.event_time >= ${start_time}
+    AND e.event_time <= ${end_time}
 GROUP BY hour
 ORDER BY hour
 `
 
-export const createDay30Sql = (timestamp: number) => `
+export const createDaySql = (start_time: number, end_time: number) => `
 SELECT
     date(e.event_time/1000, 'unixepoch') AS day,
     COALESCE(COUNT(1), 0) AS pv,
@@ -61,13 +62,14 @@ SELECT
 FROM events e
 WHERE
     e.event_id = '$page_view'
-    AND e.event_time >= ${timestamp}
+    AND e.event_time >= ${start_time}
+    AND e.event_time <= ${end_time}
 
 GROUP BY day
 ORDER BY day
 `
 
-export const createWeek24Sql = (timestamp: number) => `
+export const createWeekSql = (start_time: number, end_time: number) => `
 SELECT
     date(e.event_time/1000, 'unixepoch') AS week,
     COALESCE(COUNT(1), 0) AS pv,
@@ -75,13 +77,15 @@ SELECT
 FROM events e
 WHERE
     e.event_id = '$page_view'
-    AND e.event_time >= ${timestamp}
+    AND e.event_time >= ${start_time}
+    AND e.event_time <= ${end_time}
 GROUP BY week
 ORDER BY week
 `
 
 
-export const createMonth24Sql = (timestamp: number) => `
+export const createMonthSql = (start_time: number, end_time: number) => `
+
 SELECT
     date(e.event_time/1000, 'unixepoch') AS month,
     COALESCE(COUNT(1), 0) AS pv,
@@ -89,7 +93,8 @@ SELECT
 FROM events e
 WHERE
     e.event_id = '$page_view'
-    AND e.event_time >= ${timestamp}
+    AND e.event_time >= ${start_time}
+    AND e.event_time <= ${end_time}
 GROUP BY month
 ORDER BY month
 `

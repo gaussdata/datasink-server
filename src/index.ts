@@ -6,7 +6,7 @@ import middlewareLog from "./middlewares/log.js";
 
 const app = express();
 
-app.set('trust proxy', 1)
+app.set('trust proxy', 1);
 // text 解析
 app.use(express.text());
 

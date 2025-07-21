@@ -1,5 +1,5 @@
 import { Database } from '../utils/database.js';
-import { createCountSql, createEventsSql, createInsertSql, createTopPagesSql, createViewSql } from './event_sql.js';
+import { createCountSql, createDaySql, createEventsSql, createHourSql, createInsertSql, createMonthSql, createTopPagesSql, createViewSql, createWeekSql } from './event_sql.js';
 
 function rows2Result(rows: any, dates: any) {
   const map: any = {};
@@ -117,7 +117,23 @@ class EventModel {
   }
   
   async getPVUV(start_time: number, end_time: number, date_level: string) {
-    const query = '';
+    let query = '';
+    switch (date_level) {
+      case 'hour':
+        query = createHourSql(start_time, end_time);
+        break;
+      case 'day':
+        query = createDaySql(start_time, end_time);
+        break;
+      case 'week':
+        query = createWeekSql(start_time, end_time);
+        break;
+      case 'month':
+        query = createMonthSql(start_time, end_time);
+        break;
+      default:
+        break;
+    }
     const connection = await Database.getConnection();
     return await new Promise((resolve, reject) => {
       connection.all(query, (err: Error, rows: any[]) => {

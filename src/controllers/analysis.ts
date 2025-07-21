@@ -18,7 +18,7 @@ class Analysis {
   }
 
   async getPVUV(req: Request, res: Response) {
-    const { start_time = 0, end_time = Date.now(), date_level } = req.query;
+    const { start_time = 0, end_time = Date.now(), date_level = 'day' } = req.query;
     const pvuvInfo = await eventModel.getPVUV(start_time as number, end_time as number, date_level as string);
     res.send({
       data: pvuvInfo
