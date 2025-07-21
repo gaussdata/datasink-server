@@ -148,16 +148,13 @@ class EventModel {
         break;
       default:
         break;
-    }
-    console.log(query);
-    
+    }    
     const connection = await Database.getConnection();
     return await new Promise((resolve, reject) => {
       connection.all(query, (err: Error, rows: any[]) => {
         if (err) {
           reject(err);
         } else {
-          console.log(rows);
           resolve(rows2Result(rows, dates));
         }
       });

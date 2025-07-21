@@ -1,4 +1,4 @@
-export default new class Cache {
+export class Cache {
   max = 10;
   ttl = 60 * 1000; // 默认 TTL 设置为 60 * 1000 毫秒（即 60 秒钟）
   cache: Map<string, { value: any, timestamp: number, ttl: number }> = new Map();
