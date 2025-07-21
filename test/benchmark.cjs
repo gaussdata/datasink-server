@@ -4,9 +4,9 @@ const autocannon = require("autocannon");
 
 const instance = autocannon({
   url: "http://localhost:3000/collector/t",
-  connections: 10, //default
-  pipelining: 1, // default
-  duration: 10, // default
+  connections: 10, //default 10
+  pipelining: 1, // default 1
+  duration: 10, // default 10
   amount: 100 * 1000,
   method: 'POST',
   headers: {
