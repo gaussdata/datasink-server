@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc && tsc-alias", 
-    "start": "node dist/index.js",
+    "start": "tsc && tsc-alias && node dist/index.js",
     "dev": "concurrently \"tsc --watch\" \"tsc-alias --watch\" \"nodemon dist/index.js\""
   },
   "keywords": [],
