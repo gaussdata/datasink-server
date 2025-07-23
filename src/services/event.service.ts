@@ -1,6 +1,6 @@
 import { clampStartTime, generateDaysByTime, generateHoursByTime, generateMonthsByTime, generateWeeksByTime, ONE_DAY, ONE_HOUR, ONE_MONTH, ONE_WEEK } from '@/utils/date.js';
 import { Database } from '../utils/database.js';
-import { createCountSql, createDaySql, createEventsSql, createHourSql, createInsertSql, createMonthSql, createTopPagesSql, createViewSql, createWeekSql } from './event_sql.js';
+import { createCountSql, createDaySql, createEventsSql, createHourSql, createInsertSql, createMonthSql, createTopPagesSql, createViewSql, createWeekSql } from './event.sql.js';
 
 function rows2Result(rows: any[], dates: string[]) {
   const map: any = {};
@@ -17,7 +17,7 @@ function rows2Result(rows: any[], dates: string[]) {
 }
 
 
-class EventModel {
+class EventService {
 
 
   constructor() {
@@ -176,6 +176,6 @@ class EventModel {
   }
 }
 
-const eventModel = new EventModel();
+const eventService = new EventService();
 
-export default eventModel;
+export default eventService;

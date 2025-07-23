@@ -1,5 +1,5 @@
 import express from "express";
-import analysis from "../controllers/analysis.js";
+import analysis from "../controllers/analysis.controller.js";
 import { pvuvValidators, topPagesValidators } from "../validators/analysis.validator.js";
 import { validate } from "../utils/validate.js";
 

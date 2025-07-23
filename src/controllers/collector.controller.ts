@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import eventModel from "../models/event.js";
+import eventService from "../services/event.service.js";
 // 单个请求最大大小
 const MAX_JSON_SIZE = 100 * 1024; // 100KB
 
@@ -64,7 +64,7 @@ class Collector {
     const batch = this.eventQueue.splice(0, this.BATCH_SIZE)
     try {
       // 等待异步操作完成
-      await eventModel.addEvents(batch);
+      await eventService.addEvents(batch);
       console.log(`Recived ${batch.length} events, remain ${ this.eventQueue.length} events`);
     } catch (error) {
       console.log(`Batch insert ${batch.length} events error`)

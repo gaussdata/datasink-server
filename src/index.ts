@@ -1,6 +1,6 @@
 import express from "express";
-import routerCollector from "./routers/collector.js";
-import routerAnalysis from "./routers/analysis.js";
+import routerCollector from "./routers/collector.router.js";
+import routerAnalysis from "./routers/analysis.router.js";
 import middlewareCors from "./middlewares/cors.js";
 import middlewareLog from "./middlewares/log.js";
 

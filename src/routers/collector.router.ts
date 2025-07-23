@@ -1,5 +1,5 @@
 import express from "express";
-import { collector } from "../controllers/collector.js";
+import { collector } from "../controllers/collector.controller.js";
 
 const router = express.Router();
 
