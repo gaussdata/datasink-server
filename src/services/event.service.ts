@@ -1,6 +1,7 @@
-import { clampStartTime, generateDaysByTime, generateHoursByTime, generateMonthsByTime, generateWeeksByTime, ONE_DAY, ONE_HOUR, ONE_MONTH, ONE_WEEK } from '@/utils/date.js';
-import { Database } from '../utils/database.js';
-import { createCountSql, createDaySql, createEventsSql, createHourSql, createInsertSql, createMonthSql, createTopPagesSql, createViewSql, createWeekSql } from './event.sql.js';
+import { DateLevel } from '@/types/date.js';
+import { Database } from '@/utils/database.js';
+import { clampStartTimeByUnit, generateDatesByTime } from '@/utils/date.js';
+import { createCountSql, createEventsSql, createInsertSql, createPVUVSql, createTopPagesSql, createViewSql } from './event.sql.js';
 
 function rows2Result(rows: any[], dates: string[]) {
   const map: any = {};
@@ -16,9 +17,7 @@ function rows2Result(rows: any[], dates: string[]) {
   });
 }
 
-
 class EventService {
-
 
   constructor() {
     this.init();
@@ -117,38 +116,10 @@ class EventService {
     });
   }
 
-  async getPVUV(start_time: number, end_time: number, date_level: string) {
-    let query = '';
-    let dates: string[] = [];
-    switch (date_level) {
-      case 'hour': {
-        const startTime = clampStartTime(start_time, end_time, 24 * ONE_HOUR);
-        query = createHourSql(startTime, end_time);
-        dates = generateHoursByTime(startTime, end_time);
-      }
-        break;
-      case 'day':
-        {
-          const startTime = clampStartTime(start_time, end_time, 30 * ONE_DAY);
-          query = createDaySql(startTime, end_time);
-          dates = generateDaysByTime(startTime, end_time);
-        }
-        break;
-      case 'week': {
-        const startTime = clampStartTime(start_time, end_time, 24 * ONE_WEEK);
-        query = createWeekSql(start_time, end_time);
-        dates = generateWeeksByTime(startTime, end_time);
-      }
-        break;
-      case 'month': {
-        const startTime = clampStartTime(start_time, end_time, 24 * ONE_MONTH);
-        query = createMonthSql(startTime, end_time);
-        dates = generateMonthsByTime(startTime, end_time);
-      }
-        break;
-      default:
-        break;
-    }    
+  async getPVUV(start_time: number, end_time: number, date_level: DateLevel) {
+    const startTime = clampStartTimeByUnit(start_time, end_time, date_level);
+    const query = createPVUVSql(startTime, end_time, date_level);
+    const dates = generateDatesByTime(startTime, end_time, date_level);
     const connection = await Database.getConnection();
     return await new Promise((resolve, reject) => {
       connection.all(query, (err: Error, rows: any[]) => {

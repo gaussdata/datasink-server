@@ -40,9 +40,28 @@ WHERE
     e.event_id = '$page_view'
 `
 
-export const createHourSql = (start_time: number, end_time: number) => `
+export const createPVUVSql = (start_time: number, end_time: number, date_evel: string) => {
+    let dateFormat = '';
+    switch (date_evel) {
+        case 'minute':
+            dateFormat = '%Y-%m-%d %H:%M';
+            break;
+        case 'hour':
+            dateFormat = '%Y-%m-%d %H';
+            break;
+        case 'day':
+            dateFormat = '%Y-%m-%d';
+            break;
+        case 'week':
+            dateFormat = '%Y-%W';
+            break;
+        case 'month':
+            dateFormat = '%Y-%m';
+            break;
+    }
+    return `
 SELECT
-    strftime('%Y-%m-%d %H', datetime(e.event_time/1000, 'unixepoch')) AS date,
+    strftime('${dateFormat}', datetime(e.event_time/1000, 'unixepoch')) AS date,
     COALESCE(COUNT(1), 0) AS pv,
     COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv
 FROM events e
@@ -53,50 +72,8 @@ WHERE
 GROUP BY date
 ORDER BY date
 `
+}
 
-export const createDaySql = (start_time: number, end_time: number) => `
-SELECT
-    strftime('%Y-%m-%d', datetime(e.event_time/1000, 'unixepoch')) AS date,
-    COALESCE(COUNT(1), 0) AS pv,
-    COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv
-FROM events e
-WHERE
-    e.event_id = '$page_view'
-    AND e.event_time >= ${start_time}
-    AND e.event_time <= ${end_time}
-
-GROUP BY date
-ORDER BY date
-`
-
-export const createWeekSql = (start_time: number, end_time: number) => `
-SELECT
-    strftime('%Y-%W', datetime(e.event_time/1000, 'unixepoch')) AS date,
-    COALESCE(COUNT(1), 0) AS pv,
-    COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv
-FROM events e
-WHERE
-    e.event_id = '$page_view'
-    AND e.event_time >= ${start_time}
-    AND e.event_time <= ${end_time}
-GROUP BY date
-ORDER BY date
-`
-
-
-export const createMonthSql = (start_time: number, end_time: number) => `
-SELECT
-    strftime('%Y-%m', datetime(e.event_time/1000, 'unixepoch')) AS date,
-    COALESCE(COUNT(1), 0) AS pv,
-    COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv
-FROM events e
-WHERE
-    e.event_id = '$page_view'
-    AND e.event_time >= ${start_time}
-    AND e.event_time <= ${end_time}
-GROUP BY date
-ORDER BY date
-`
 
 export const createTopPagesSql = (start_time: number, end_time: number) => `
 SELECT

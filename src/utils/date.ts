@@ -1,30 +1,63 @@
 // 导入需要的函数
+import { ONE_DAY, ONE_HOUR, ONE_MINUTE, ONE_MONTH, ONE_WEEK } from "@/consts/date.js";
+import { DateLevel } from "@/types/date";
 import {
   addDays,
   addHours,
+  addMinutes,
   addMonths,
   addWeeks,
   endOfDay,
   endOfHour,
+  endOfMinute,
   endOfMonth,
   endOfWeek,
   format,
   startOfDay,
   startOfHour,
+  startOfMinute,
   startOfMonth,
   startOfWeek,
   subDays,
   subHours,
+  subMinutes,
   subMonths,
   subWeeks
 } from "date-fns";
 
-export const ONE_HOUR = 3600 * 1000;
-export const ONE_DAY = 24 * ONE_HOUR;
-export const ONE_WEEK = 7 * ONE_DAY;
-export const ONE_MONTH = 30 * ONE_DAY;
+/**
+ * 生成过去 count 分钟的数组
+ * @param count 分钟数
+ * @returns 分钟数组
+ */
+export const generateLastMinutes = (count = 60) => {
+  const minutesArray = [];
+  for (let i = count - 1; i >= 0; i--) {
+    // 计算当前时间减去 i 分钟
+    const date = subMinutes(new Date(), i)
+    const formattedDate = format(date, "yyyy-MM-dd HH:mm");
+    minutesArray.push(formattedDate);
+  }
+  return minutesArray;
+};
 
-// 生成过去 count 小时的数组
+export const generateMinutesByTime = (startTime: number, endTime: number) => {
+  const minutesArray = [];
+  const start = startOfMinute(startTime);
+  const end = endOfMinute(endTime);
+  let current = start;
+  while (current < end) {
+    minutesArray.push(format(current, "yyyy-MM-dd HH:mm"));
+    current = addMinutes(current, 1);
+  }
+  return minutesArray;
+}
+
+/**
+ * 生成过去 count 小时的数组
+ * @param count 小时数
+ * @returns 小时数组
+ */
 export const generateLastHours = (count = 24) => {
   const hoursArray = [];
   for (let i = count - 1; i >= 0; i--) {
@@ -54,7 +87,11 @@ export const generateHoursByTime = (startTime: number, endTime: number) => {
   return hoursArray;
 }
 
-// 过去 count 天
+/**
+ * 生成过去 count 天的数组
+ * @param count 
+ * @returns 
+ */
 export const generateLastDays = (count = 7) => {
   const daysArray = [];
   for (let i = count - 1; i >= 0; i--) {
@@ -66,6 +103,12 @@ export const generateLastDays = (count = 7) => {
   return daysArray;
 };
 
+/**
+ * 生成时间范围内的天数组
+ * @param startTime 开始时间
+ * @param endTime 结束时间
+ * @returns 
+ */
 export const generateDaysByTime = (startTime: number, endTime: number) => {
   const daysArray = [];
   const start = startOfDay(startTime);
@@ -78,7 +121,11 @@ export const generateDaysByTime = (startTime: number, endTime: number) => {
   return daysArray;
 }
 
-// 过去 4 周
+/**
+ * 生成过去 count 周的数组
+ * @param count 
+ * @returns 周数组
+ */
 export const generateLastWeeks = (count = 4) => {
   const daysArray = [];
   for (let i = count - 1; i >= 0; i--) {
@@ -89,6 +136,12 @@ export const generateLastWeeks = (count = 4) => {
   return daysArray;
 };
 
+/**
+ * 生成时间范围内的周数组
+ * @param startTime 开始时间
+ * @param endTime 结束时间
+ * @returns 
+ */
 export const generateWeeksByTime = (startTime: number, endTime: number) => {
   const daysArray = [];
   const start = startOfWeek(startTime);
@@ -101,6 +154,11 @@ export const generateWeeksByTime = (startTime: number, endTime: number) => {
   return daysArray;
 }
 
+/**
+ * 生成过去 count 月的数组
+ * @param count 
+ * @returns 
+ */
 export const generateLastMonths = (count = 6) => {
   const daysArray = [];
   for (let i = count - 1; i >= 0; i--) {
@@ -111,6 +169,12 @@ export const generateLastMonths = (count = 6) => {
   return daysArray;
 };
 
+/**
+ * 生成时间范围内的月数组
+ * @param startTime 开始时间
+ * @param endTime 结束时间
+ * @returns 
+ */
 export const generateMonthsByTime = (startTime: number, endTime: number) => {
   const daysArray = [];
   const start = startOfMonth(startTime);
@@ -123,12 +187,50 @@ export const generateMonthsByTime = (startTime: number, endTime: number) => {
   return daysArray;
 }
 
+/**
+ * 生成时间范围内的日期数组
+ * @param startTime 
+ * @param endTime 
+ * @param unit 
+ * @returns 
+ */
+export const generateDatesByTime = (startTime: number, endTime: number, unit: DateLevel) => {
+  switch (unit) {
+    case 'minute':
+      return generateMinutesByTime(startTime, endTime);
+    case 'hour':
+      return generateHoursByTime(startTime, endTime);
+    case 'day':
+      return generateDaysByTime(startTime, endTime);
+    case 'week':
+      return generateWeeksByTime(startTime, endTime);
+    case 'month':
+      return generateMonthsByTime(startTime, endTime);
+  }
+}
+
 export const clampStartTime = (startTime: number, endTime: number, distance: number) => {
   if (endTime - distance < startTime) {
     return startTime;
   }
   return endTime - distance;
 }
+
+export const clampStartTimeByUnit = (startTime: number, endTime: number, unit: DateLevel) => {
+  switch (unit) {
+    case 'minute':
+      return clampStartTime(startTime, endTime, 60 * ONE_MINUTE);
+    case 'hour':
+      return clampStartTime(startTime, endTime, 24 * ONE_HOUR);
+    case 'day':
+      return clampStartTime(startTime, endTime, 30 * ONE_DAY);
+    case 'week':
+      return clampStartTime(startTime, endTime, 24 * ONE_WEEK);
+    case 'month':
+      return clampStartTime(startTime, endTime, 24 * ONE_MONTH);
+  }
+}
+
 
 export const clampEndTime = (startTime: number, endTime: number, distance: number) => {
   if (startTime + distance > endTime) {

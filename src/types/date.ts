@@ -1,0 +1,1 @@
+export type DateLevel = 'minute' | 'hour' | 'day' | 'week' | 'month';

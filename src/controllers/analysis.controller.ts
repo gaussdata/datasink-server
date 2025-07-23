@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
-import eventService from "../services/event.service.js";
+import eventService from "@/services/event.service.js";
 import { cacheResponse } from "@/decorators/cache.decorator.js";
+import { DateLevel } from "@/types/date.js";
 
 class Analysis {
   @cacheResponse()
@@ -28,7 +29,7 @@ class Analysis {
   @cacheResponse()
   async getPVUV(req: Request, res: Response) {
     const { start_time = 0, end_time = Date.now(), date_level = 'day' } = req.query;
-    const pvuvInfo = await eventService.getPVUV(start_time as number, end_time as number, date_level as string);
+    const pvuvInfo = await eventService.getPVUV(start_time as number, end_time as number, date_level as DateLevel);
     res.send({
       data: pvuvInfo
     })
