@@ -61,7 +61,7 @@ export const createPVUVSql = (start_time: number, end_time: number, date_evel: s
     }
     return `
 SELECT
-    strftime('${dateFormat}', datetime(e.event_time/1000, 'unixepoch')) AS date,
+    strftime('${dateFormat}', datetime(e.event_time/1000, 'unixepoch', '+8 hours')) AS date,
     COALESCE(COUNT(1), 0) AS pv,
     COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv
 FROM events e
