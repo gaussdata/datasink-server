@@ -14,7 +14,7 @@ function log(req: express.Request, res: express.Response, next: express.NextFunc
   res.on("finish", () => { // 监听响应结束事件
     const duration = Date.now() - start; // 计算请求耗时    
     const { statusCode } = res; // 获取响应状态码
-    const logMessage = `${statusCode} ${method} ${url} - ${duration}ms`; // 构造日志信息
+    const logMessage = `${new Date().toLocaleString()} ${statusCode} ${method} ${url} - ${duration}ms`; // 构造日志信息
     logger.info(logMessage); // 记录日志信息
   });
   next();
