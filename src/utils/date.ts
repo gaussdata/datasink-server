@@ -24,6 +24,7 @@ import {
   subMonths,
   subWeeks
 } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 
 /**
  * 生成过去 count 分钟的数组
@@ -35,7 +36,7 @@ export const generateLastMinutes = (count = 60) => {
   for (let i = count - 1; i >= 0; i--) {
     // 计算当前时间减去 i 分钟
     const date = subMinutes(new Date(), i)
-    const formattedDate = format(date, "yyyy-MM-dd HH:mm");
+    const formattedDate = formatInTimeZone(date ,"Asia/Shanghai", "yyyy-MM-dd HH:mm");
     minutesArray.push(formattedDate);
   }
   return minutesArray;
@@ -47,7 +48,7 @@ export const generateMinutesByTime = (startTime: number, endTime: number) => {
   const end = endOfMinute(endTime);
   let current = start;
   while (current < end) {
-    minutesArray.push(format(current, "yyyy-MM-dd HH:mm"));
+    minutesArray.push(formatInTimeZone(current, "Asia/Shanghai", "yyyy-MM-dd HH:mm"));
     current = addMinutes(current, 1);
   }
   return minutesArray;
@@ -63,7 +64,7 @@ export const generateLastHours = (count = 24) => {
   for (let i = count - 1; i >= 0; i--) {
     // 计算当前时间减去 i 小时
     const date = subHours(new Date(), i)
-    const formattedDate = format(date, "yyyy-MM-dd HH");
+    const formattedDate = formatInTimeZone(date, "Asia/Shanghai", "yyyy-MM-dd HH");
     hoursArray.push(formattedDate);
   }
   return hoursArray;
@@ -81,7 +82,7 @@ export const generateHoursByTime = (startTime: number, endTime: number) => {
   const end = endOfHour(endTime);
   let current = start;
   while (current < end) {
-    hoursArray.push(format(current, "yyyy-MM-dd HH"));
+    hoursArray.push(formatInTimeZone(current, "Asia/Shanghai", "yyyy-MM-dd HH"));
     current = addHours(current, 1);
   }
   return hoursArray;
@@ -97,7 +98,7 @@ export const generateLastDays = (count = 7) => {
   for (let i = count - 1; i >= 0; i--) {
     const date = subDays(new Date(), i);
     // 格式化为 'yyyy-MM-dd'
-    const formattedDate = format(date, "yyyy-MM-dd");
+    const formattedDate = formatInTimeZone(date, "Asia/Shanghai", "yyyy-MM-dd");
     daysArray.push(formattedDate);
   }
   return daysArray;
@@ -115,7 +116,7 @@ export const generateDaysByTime = (startTime: number, endTime: number) => {
   const end = endOfDay(endTime);
   let current = start;
   while (current < end) {
-    daysArray.push(format(current, "yyyy-MM-dd"));
+    daysArray.push(formatInTimeZone(current, "Asia/Shanghai", "yyyy-MM-dd"));
     current = addDays(current, 1);
   }
   return daysArray;
@@ -130,7 +131,7 @@ export const generateLastWeeks = (count = 4) => {
   const daysArray = [];
   for (let i = count - 1; i >= 0; i--) {
     const date = startOfWeek(subWeeks(new Date(), i))
-    const formattedDate = format(date, "yyyy-ww");
+    const formattedDate = formatInTimeZone(date, "Asia/Shanghai", "yyyy-ww");
     daysArray.push(formattedDate);
   }
   return daysArray;
@@ -148,7 +149,7 @@ export const generateWeeksByTime = (startTime: number, endTime: number) => {
   const end = endOfWeek(endTime);
   let current = start;
   while (current < end) {
-    daysArray.push(format(current, "yyyy-ww"));
+    daysArray.push(formatInTimeZone(current, "Asia/Shanghai", "yyyy-ww"));
     current = addWeeks(current, 1);
   }
   return daysArray;
@@ -163,7 +164,7 @@ export const generateLastMonths = (count = 6) => {
   const daysArray = [];
   for (let i = count - 1; i >= 0; i--) {
     const date = subMonths(new Date(), i)
-    const formattedDate = format(date, "yyyy-MM");
+    const formattedDate = formatInTimeZone(date, "Asia/Shanghai", "yyyy-MM");
     daysArray.push(formattedDate);
   }
   return daysArray;
@@ -181,7 +182,7 @@ export const generateMonthsByTime = (startTime: number, endTime: number) => {
   const end = endOfMonth(endTime);
   let current = start;
   while (current < end) {
-    daysArray.push(format(current, "yyyy-MM"));
+    daysArray.push(formatInTimeZone(current, "Asia/Shanghai", "yyyy-MM"));
     current = addMonths(current, 1);
   }
   return daysArray;
