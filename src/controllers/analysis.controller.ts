@@ -29,7 +29,7 @@ class Analysis {
   @cacheResponse()
   async getPVUV(req: Request, res: Response) {
     const { start_time = 0, end_time = Date.now(), date_level = 'day' } = req.query;
-    const pvuvInfo = await eventService.getPVUV(start_time as number, end_time as number, date_level as DateLevel);
+    const pvuvInfo = await eventService.getPVUV(Number(start_time), Number(end_time), date_level as DateLevel);
     res.send({
       data: pvuvInfo
     })
@@ -41,7 +41,7 @@ class Analysis {
   @cacheResponse()
   async getTopPages(req: Request, res: Response) {
     const { start_time = 0, end_time = Date.now() } = req.query;
-    const topPagesInfo = await eventService.getTopPages(start_time as number, end_time as number)
+    const topPagesInfo = await eventService.getTopPages(Number(start_time), Number(end_time))
     res.send({
       data: topPagesInfo
     })
