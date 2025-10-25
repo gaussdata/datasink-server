@@ -24,5 +24,8 @@ GET http://localhost:3000/analysis/pvuv?date_level=week HTTP/1.1
 ### Month
 GET http://localhost:3000/analysis/pvuv?date_level=month HTTP/1.1
 
+### Top Pages
+GET http://localhost:3000/analysis/top-pages HTTP/1.1
+
 ### Metrics
 GET http://localhost:3000/analysis/metrics HTTP/1.1

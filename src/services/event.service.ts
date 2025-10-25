@@ -154,7 +154,13 @@ class EventService {
           reject(err)
         }
         else {
-          resolve(rows)
+          const result = rows.map((row: any) => {
+            return {
+              pv: row.pv,
+              url: row.clean_url,
+            }
+          })
+          resolve(result)
         }
       })
     })
