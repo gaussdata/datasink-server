@@ -1,16 +1,14 @@
+import sqlite3 from 'sqlite3'
 
-import sqlite3 from "sqlite3";
-const file = "db/sqlite3.db";
+const file = 'db/sqlite3.db'
 
 export class Database {
-
-  static connection: sqlite3.Database;
-
+  static connection: sqlite3.Database
 
   static async getConnection() {
     if (!this.connection) {
-      this.connection = await new sqlite3.Database(file);
+      this.connection = await new sqlite3.Database(file)
     }
-    return this.connection;
+    return this.connection
   }
 }

@@ -1,6 +1,4 @@
-// 导入需要的函数
-import { ONE_DAY, ONE_HOUR, ONE_MINUTE, ONE_MONTH, ONE_WEEK } from "@/consts/date.js";
-import { DateLevel } from "@/types/date";
+import type { DateLevel } from '@/types/date'
 import {
   addDays,
   addHours,
@@ -12,7 +10,6 @@ import {
   endOfMinute,
   endOfMonth,
   endOfWeek,
-  format,
   startOfDay,
   startOfHour,
   startOfMinute,
@@ -22,36 +19,50 @@ import {
   subHours,
   subMinutes,
   subMonths,
-  subWeeks
-} from "date-fns";
-import { formatInTimeZone } from "date-fns-tz";
+  subWeeks,
+} from 'date-fns'
+import { formatInTimeZone } from 'date-fns-tz'
+// 导入需要的函数
+import {
+  ONE_DAY,
+  ONE_HOUR,
+  ONE_MINUTE,
+  ONE_MONTH,
+  ONE_WEEK,
+} from '@/consts/date.js'
 
 /**
  * 生成过去 count 分钟的数组
  * @param count 分钟数
  * @returns 分钟数组
  */
-export const generateLastMinutes = (count = 60) => {
-  const minutesArray = [];
+export function generateLastMinutes(count = 60) {
+  const minutesArray = []
   for (let i = count - 1; i >= 0; i--) {
     // 计算当前时间减去 i 分钟
     const date = subMinutes(new Date(), i)
-    const formattedDate = formatInTimeZone(date ,"Asia/Shanghai", "yyyy-MM-dd HH:mm");
-    minutesArray.push(formattedDate);
+    const formattedDate = formatInTimeZone(
+      date,
+      'Asia/Shanghai',
+      'yyyy-MM-dd HH:mm',
+    )
+    minutesArray.push(formattedDate)
   }
-  return minutesArray;
-};
+  return minutesArray
+}
 
-export const generateMinutesByTime = (startTime: number, endTime: number) => {
-  const minutesArray = [];
-  const start = startOfMinute(startTime);
-  const end = endOfMinute(endTime);
-  let current = start;
+export function generateMinutesByTime(startTime: number, endTime: number) {
+  const minutesArray = []
+  const start = startOfMinute(startTime)
+  const end = endOfMinute(endTime)
+  let current = start
   while (current < end) {
-    minutesArray.push(formatInTimeZone(current, "Asia/Shanghai", "yyyy-MM-dd HH:mm"));
-    current = addMinutes(current, 1);
+    minutesArray.push(
+      formatInTimeZone(current, 'Asia/Shanghai', 'yyyy-MM-dd HH:mm'),
+    )
+    current = addMinutes(current, 1)
   }
-  return minutesArray;
+  return minutesArray
 }
 
 /**
@@ -59,183 +70,209 @@ export const generateMinutesByTime = (startTime: number, endTime: number) => {
  * @param count 小时数
  * @returns 小时数组
  */
-export const generateLastHours = (count = 24) => {
-  const hoursArray = [];
+export function generateLastHours(count = 24) {
+  const hoursArray = []
   for (let i = count - 1; i >= 0; i--) {
     // 计算当前时间减去 i 小时
     const date = subHours(new Date(), i)
-    const formattedDate = formatInTimeZone(date, "Asia/Shanghai", "yyyy-MM-dd HH");
-    hoursArray.push(formattedDate);
+    const formattedDate = formatInTimeZone(
+      date,
+      'Asia/Shanghai',
+      'yyyy-MM-dd HH',
+    )
+    hoursArray.push(formattedDate)
   }
-  return hoursArray;
-};
+  return hoursArray
+}
 
 /**
  * 生成时间范围内的小时数组
  * @param startTime 开始时间
  * @param endTime 结束时间
- * @returns 
+ * @returns date array of hours
  */
-export const generateHoursByTime = (startTime: number, endTime: number) => {
-  const hoursArray = [];
-  const start = startOfHour(startTime);
-  const end = endOfHour(endTime);
-  let current = start;
+export function generateHoursByTime(startTime: number, endTime: number) {
+  const hoursArray = []
+  const start = startOfHour(startTime)
+  const end = endOfHour(endTime)
+  let current = start
   while (current < end) {
-    hoursArray.push(formatInTimeZone(current, "Asia/Shanghai", "yyyy-MM-dd HH"));
-    current = addHours(current, 1);
+    hoursArray.push(
+      formatInTimeZone(current, 'Asia/Shanghai', 'yyyy-MM-dd HH'),
+    )
+    current = addHours(current, 1)
   }
-  return hoursArray;
+  return hoursArray
 }
 
 /**
  * 生成过去 count 天的数组
- * @param count 
- * @returns 
+ * @param count
+ * @returns date array of days
  */
-export const generateLastDays = (count = 7) => {
-  const daysArray = [];
+export function generateLastDays(count = 7) {
+  const daysArray = []
   for (let i = count - 1; i >= 0; i--) {
-    const date = subDays(new Date(), i);
+    const date = subDays(new Date(), i)
     // 格式化为 'yyyy-MM-dd'
-    const formattedDate = formatInTimeZone(date, "Asia/Shanghai", "yyyy-MM-dd");
-    daysArray.push(formattedDate);
+    const formattedDate = formatInTimeZone(date, 'Asia/Shanghai', 'yyyy-MM-dd')
+    daysArray.push(formattedDate)
   }
-  return daysArray;
-};
+  return daysArray
+}
 
 /**
  * 生成时间范围内的天数组
  * @param startTime 开始时间
  * @param endTime 结束时间
- * @returns 
+ * @returns date array of days
  */
-export const generateDaysByTime = (startTime: number, endTime: number) => {
-  const daysArray = [];
-  const start = startOfDay(startTime);
-  const end = endOfDay(endTime);
-  let current = start;
+export function generateDaysByTime(startTime: number, endTime: number) {
+  const daysArray = []
+  const start = startOfDay(startTime)
+  const end = endOfDay(endTime)
+  let current = start
   while (current < end) {
-    daysArray.push(formatInTimeZone(current, "Asia/Shanghai", "yyyy-MM-dd"));
-    current = addDays(current, 1);
+    daysArray.push(formatInTimeZone(current, 'Asia/Shanghai', 'yyyy-MM-dd'))
+    current = addDays(current, 1)
   }
-  return daysArray;
+  return daysArray
 }
 
 /**
  * 生成过去 count 周的数组
- * @param count 
- * @returns 周数组
+ * @param count
+ * @returns date array of weeks
  */
-export const generateLastWeeks = (count = 4) => {
-  const daysArray = [];
+export function generateLastWeeks(count = 4) {
+  const daysArray = []
   for (let i = count - 1; i >= 0; i--) {
     const date = startOfWeek(subWeeks(new Date(), i))
-    const formattedDate = formatInTimeZone(date, "Asia/Shanghai", "yyyy-ww");
-    daysArray.push(formattedDate);
+    const formattedDate = formatInTimeZone(date, 'Asia/Shanghai', 'yyyy-ww')
+    daysArray.push(formattedDate)
   }
-  return daysArray;
-};
+  return daysArray
+}
 
 /**
  * 生成时间范围内的周数组
  * @param startTime 开始时间
  * @param endTime 结束时间
- * @returns 
+ * @returns date array of weeks
  */
-export const generateWeeksByTime = (startTime: number, endTime: number) => {
-  const daysArray = [];
-  const start = startOfWeek(startTime);
-  const end = endOfWeek(endTime);
-  let current = start;
+export function generateWeeksByTime(startTime: number, endTime: number) {
+  const daysArray = []
+  const start = startOfWeek(startTime)
+  const end = endOfWeek(endTime)
+  let current = start
   while (current < end) {
-    daysArray.push(formatInTimeZone(current, "Asia/Shanghai", "yyyy-ww"));
-    current = addWeeks(current, 1);
+    daysArray.push(formatInTimeZone(current, 'Asia/Shanghai', 'yyyy-ww'))
+    current = addWeeks(current, 1)
   }
-  return daysArray;
+  return daysArray
 }
 
 /**
  * 生成过去 count 月的数组
- * @param count 
- * @returns 
+ * @param count
+ * @returns date array of months
  */
-export const generateLastMonths = (count = 6) => {
-  const daysArray = [];
+export function generateLastMonths(count = 6) {
+  const daysArray = []
   for (let i = count - 1; i >= 0; i--) {
     const date = subMonths(new Date(), i)
-    const formattedDate = formatInTimeZone(date, "Asia/Shanghai", "yyyy-MM");
-    daysArray.push(formattedDate);
+    const formattedDate = formatInTimeZone(date, 'Asia/Shanghai', 'yyyy-MM')
+    daysArray.push(formattedDate)
   }
-  return daysArray;
-};
+  return daysArray
+}
 
 /**
  * 生成时间范围内的月数组
  * @param startTime 开始时间
  * @param endTime 结束时间
- * @returns 
+ * @returns date array of months
  */
-export const generateMonthsByTime = (startTime: number, endTime: number) => {
-  const daysArray = [];
-  const start = startOfMonth(startTime);
-  const end = endOfMonth(endTime);
-  let current = start;
+export function generateMonthsByTime(startTime: number, endTime: number) {
+  const daysArray = []
+  const start = startOfMonth(startTime)
+  const end = endOfMonth(endTime)
+  let current = start
   while (current < end) {
-    daysArray.push(formatInTimeZone(current, "Asia/Shanghai", "yyyy-MM"));
-    current = addMonths(current, 1);
+    daysArray.push(formatInTimeZone(current, 'Asia/Shanghai', 'yyyy-MM'))
+    current = addMonths(current, 1)
   }
-  return daysArray;
+  return daysArray
 }
 
 /**
  * 生成时间范围内的日期数组
- * @param startTime 
- * @param endTime 
- * @param unit 
- * @returns 
+ * @param startTime
+ * @param endTime
+ * @param unit
+ * @returns {string[]} date array
  */
-export const generateDatesByTime = (startTime: number, endTime: number, unit: DateLevel) => {
+export function generateDatesByTime(startTime: number, endTime: number, unit: DateLevel) {
   switch (unit) {
     case 'minute':
-      return generateMinutesByTime(startTime, endTime);
+      return generateMinutesByTime(startTime, endTime)
     case 'hour':
-      return generateHoursByTime(startTime, endTime);
+      return generateHoursByTime(startTime, endTime)
     case 'day':
-      return generateDaysByTime(startTime, endTime);
+      return generateDaysByTime(startTime, endTime)
     case 'week':
-      return generateWeeksByTime(startTime, endTime);
+      return generateWeeksByTime(startTime, endTime)
     case 'month':
-      return generateMonthsByTime(startTime, endTime);
+      return generateMonthsByTime(startTime, endTime)
   }
 }
 
-export const clampStartTime = (startTime: number, endTime: number, distance: number) => {
+/**
+ *
+ * @param startTime
+ * @param endTime
+ * @param distance
+ * @returns timestamp
+ */
+export function clampStartTime(startTime: number, endTime: number, distance: number) {
   if (endTime - distance < startTime) {
-    return startTime;
+    return startTime
   }
-  return endTime - distance;
+  return endTime - distance
 }
 
-export const clampStartTimeByUnit = (startTime: number, endTime: number, unit: DateLevel) => {
+/**
+ *
+ * @param startTime
+ * @param endTime
+ * @param unit
+ * @returns timestamp
+ */
+export function clampStartTimeByUnit(startTime: number, endTime: number, unit: DateLevel) {
   switch (unit) {
     case 'minute':
-      return clampStartTime(startTime, endTime, 60 * ONE_MINUTE);
+      return clampStartTime(startTime, endTime, 60 * ONE_MINUTE)
     case 'hour':
-      return clampStartTime(startTime, endTime, 24 * ONE_HOUR);
+      return clampStartTime(startTime, endTime, 24 * ONE_HOUR)
     case 'day':
-      return clampStartTime(startTime, endTime, 30 * ONE_DAY);
+      return clampStartTime(startTime, endTime, 30 * ONE_DAY)
     case 'week':
-      return clampStartTime(startTime, endTime, 24 * ONE_WEEK);
+      return clampStartTime(startTime, endTime, 24 * ONE_WEEK)
     case 'month':
-      return clampStartTime(startTime, endTime, 24 * ONE_MONTH);
+      return clampStartTime(startTime, endTime, 24 * ONE_MONTH)
   }
 }
 
-
-export const clampEndTime = (startTime: number, endTime: number, distance: number) => {
+/**
+ *
+ * @param startTime
+ * @param endTime
+ * @param distance
+ * @returns timestamp
+ */
+export function clampEndTime(startTime: number, endTime: number, distance: number) {
   if (startTime + distance > endTime) {
-    return endTime;
+    return endTime
   }
-  return startTime + distance;
+  return startTime + distance
 }

@@ -1,23 +1,39 @@
-import winston from 'winston';
+import winston from 'winston'
 
 // 定义不同日志级别的文件路径
 const logLevels = {
-    debug: 'access.log' // 新增 access 日志
-};
+  debug: {
+    type: 'file',
+    filename: 'debug.log',
+  },
+  error: {
+    type: 'file',
+    filename: 'error.log',
+  },
+  info: {
+    type: 'cosole',
+    filename: '',
+  },
+}
 
-// 为每个日志级别创建对应的文件传输
-const transports = Object.entries(logLevels).map(([level, filename]) => {
-    return new winston.transports.File({
-        level: level,
-        filename: `logs/${filename}`,
-        format: winston.format.simple()
-    });
-});
+const transports = Object.entries(logLevels).map(([level, config]) => {
+  const { type, filename } = config
+  if (type === 'cosole') {
+    return new winston.transports.Console({
+      level,
+      format: winston.format.simple(),
+    })
+  }
+  return new winston.transports.File({
+    level,
+    filename: `logs/${filename}`,
+    format: winston.format.simple(),
+  })
+})
 
 const logger = winston.createLogger({
-    level: 'debug',
-    format: winston.format.simple(),
-    transports: transports
-});
+  format: winston.format.simple(),
+  transports,
+})
 
-export default logger;
+export default logger

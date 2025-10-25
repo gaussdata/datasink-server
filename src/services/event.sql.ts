@@ -1,4 +1,4 @@
-import { MetricType } from "../types/metrics.js";
+import { MetricType } from '../types/metrics.js'
 
 export const createEventsSql = `
 CREATE TABLE IF NOT EXISTS events 
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS events
     viewport_width INT,
     viewport_height INT,
     user_agent VARCHAR
-);`;
+);`
 
 export const createInsertSql = `
 INSERT INTO events 
@@ -26,12 +26,12 @@ INSERT INTO events
     lib_version, url, title, referrer, screen_width,
     screen_height, viewport_width, viewport_height, user_agent
     )
-VALUES`;
+VALUES`
 
 export const createCountSql = ` 
 SELECT
     COALESCE(COUNT(1), 0) AS count  -- 事件数量
-FROM events`;
+FROM events`
 
 export const createViewSql = ` 
 SELECT
@@ -40,30 +40,26 @@ SELECT
 FROM events e
 WHERE
     e.event_id = '$page_view'
-`;
+`
 
-export const createPVUVSql = (
-  start_time: number,
-  end_time: number,
-  date_evel: string
-) => {
-  let dateFormat = "";
+export function createPVUVSql(start_time: number, end_time: number, date_evel: string) {
+  let dateFormat = ''
   switch (date_evel) {
-    case "minute":
-      dateFormat = "%Y-%m-%d %H:%M";
-      break;
-    case "hour":
-      dateFormat = "%Y-%m-%d %H";
-      break;
-    case "day":
-      dateFormat = "%Y-%m-%d";
-      break;
-    case "week":
-      dateFormat = "%Y-%W";
-      break;
-    case "month":
-      dateFormat = "%Y-%m";
-      break;
+    case 'minute':
+      dateFormat = '%Y-%m-%d %H:%M'
+      break
+    case 'hour':
+      dateFormat = '%Y-%m-%d %H'
+      break
+    case 'day':
+      dateFormat = '%Y-%m-%d'
+      break
+    case 'week':
+      dateFormat = '%Y-%W'
+      break
+    case 'month':
+      dateFormat = '%Y-%m'
+      break
   }
   return `
 SELECT
@@ -77,10 +73,11 @@ WHERE
     AND e.event_time <= ${end_time}
 GROUP BY date
 ORDER BY date
-`;
-};
+`
+}
 
-export const createMeticsSql = (start_time: number, end_time: number) => `
+export function createMeticsSql(start_time: number, end_time: number) {
+  return `
     SELECT
     COALESCE(COUNT(1), 0) AS ${MetricType.PAGEVIEWS},
     COALESCE(COUNT(DISTINCT e.aa_id), 0) AS ${MetricType.VISITORS},
@@ -127,9 +124,11 @@ WHERE
     e.event_id = '$page_view'
     AND e.event_time >= ${start_time}
     AND e.event_time <= ${end_time}
-`;
+`
+}
 
-export const createTopPagesSql = (start_time: number, end_time: number) => `
+export function createTopPagesSql(start_time: number, end_time: number) {
+  return `
 SELECT
     e.url,
     COUNT(1) AS pv
@@ -141,4 +140,5 @@ WHERE
 GROUP BY e.url
 ORDER BY pv DESC
 LIMIT 10
-`;
+`
+}
