@@ -1,4 +1,5 @@
-import { DateLevel, Metics } from "@/types/date.js";
+import { DateLevel } from "@/types/date.js";
+import { Metrics } from "@/types/metrics.js";
 import { Database } from "@/utils/database.js";
 import { clampStartTimeByUnit, generateDatesByTime } from "@/utils/date.js";
 import {
@@ -160,7 +161,7 @@ class EventService {
         if (err) {
           reject(err);
         } else {
-          resolve(rows[0] || new Metics());
+          resolve(rows[0] || new Metrics());
         }
       });
     });

@@ -1,3 +1,5 @@
+import { MetricType } from "../types/metrics.js";
+
 export const createEventsSql = `
 CREATE TABLE IF NOT EXISTS events 
 (
@@ -80,9 +82,46 @@ ORDER BY date
 
 export const createMeticsSql = (start_time: number, end_time: number) => `
     SELECT
-    COALESCE(COUNT(1), 0) AS pageviews,
-    COALESCE(COUNT(DISTINCT e.aa_id), 0) AS visitors,
-    COALESCE(COUNT(DISTINCT e.session_id), 0) AS visits
+    COALESCE(COUNT(1), 0) AS ${MetricType.PAGEVIEWS},
+    COALESCE(COUNT(DISTINCT e.aa_id), 0) AS ${MetricType.VISITORS},
+    COALESCE(COUNT(DISTINCT e.session_id), 0) AS ${MetricType.VISITS},
+    -- 跳出率计算
+      CASE 
+        WHEN COUNT(DISTINCT e.session_id) > 0 THEN
+          ROUND(
+            (SELECT COUNT(DISTINCT session_id) 
+             FROM events 
+             WHERE event_id = '$page_view'
+               AND event_time >= ${start_time}
+               AND event_time <= ${end_time}
+               AND session_id IN (
+                 SELECT session_id 
+                 FROM events 
+                 WHERE event_id = '$page_view'
+                   AND event_time >= ${start_time}
+                   AND event_time <= ${end_time}
+                 GROUP BY session_id 
+                 HAVING COUNT(*) = 1
+               )
+            ) * 100.0 / COUNT(DISTINCT e.session_id),
+            2
+          )
+        ELSE 0
+      END AS ${MetricType.BOUNCES},
+      -- 平均会话时长计算
+      COALESCE(
+        (SELECT ROUND(AVG(session_duration), 2)
+         FROM (
+           SELECT MAX(event_time) - MIN(event_time) AS session_duration
+           FROM events
+           WHERE event_id = '$page_view'
+             AND event_time >= ${start_time}
+             AND event_time <= ${end_time}
+           GROUP BY session_id
+           HAVING COUNT(*) > 1 OR MAX(event_time) > MIN(event_time)
+         ) WHERE session_duration > 0
+        ), 0
+      ) AS ${MetricType.TOTAL_TIME}
 FROM events e
 WHERE
     e.event_id = '$page_view'
