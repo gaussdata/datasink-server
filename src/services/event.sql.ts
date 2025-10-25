@@ -24,12 +24,12 @@ INSERT INTO events
     lib_version, url, title, referrer, screen_width,
     screen_height, viewport_width, viewport_height, user_agent
     )
-VALUES`
+VALUES`;
 
 export const createCountSql = ` 
 SELECT
     COALESCE(COUNT(1), 0) AS count  -- 事件数量
-FROM events`
+FROM events`;
 
 export const createViewSql = ` 
 SELECT
@@ -38,28 +38,32 @@ SELECT
 FROM events e
 WHERE
     e.event_id = '$page_view'
-`
+`;
 
-export const createPVUVSql = (start_time: number, end_time: number, date_evel: string) => {
-    let dateFormat = '';
-    switch (date_evel) {
-        case 'minute':
-            dateFormat = '%Y-%m-%d %H:%M';
-            break;
-        case 'hour':
-            dateFormat = '%Y-%m-%d %H';
-            break;
-        case 'day':
-            dateFormat = '%Y-%m-%d';
-            break;
-        case 'week':
-            dateFormat = '%Y-%W';
-            break;
-        case 'month':
-            dateFormat = '%Y-%m';
-            break;
-    }
-    return `
+export const createPVUVSql = (
+  start_time: number,
+  end_time: number,
+  date_evel: string
+) => {
+  let dateFormat = "";
+  switch (date_evel) {
+    case "minute":
+      dateFormat = "%Y-%m-%d %H:%M";
+      break;
+    case "hour":
+      dateFormat = "%Y-%m-%d %H";
+      break;
+    case "day":
+      dateFormat = "%Y-%m-%d";
+      break;
+    case "week":
+      dateFormat = "%Y-%W";
+      break;
+    case "month":
+      dateFormat = "%Y-%m";
+      break;
+  }
+  return `
 SELECT
     strftime('${dateFormat}', datetime(e.event_time/1000, 'unixepoch', '+8 hours')) AS date,
     COALESCE(COUNT(1), 0) AS pv,
@@ -71,9 +75,20 @@ WHERE
     AND e.event_time <= ${end_time}
 GROUP BY date
 ORDER BY date
-`
-}
+`;
+};
 
+export const createMeticsSql = (start_time: number, end_time: number) => `
+    SELECT
+    COALESCE(COUNT(1), 0) AS pageviews,
+    COALESCE(COUNT(DISTINCT e.aa_id), 0) AS visitors,
+    COALESCE(COUNT(DISTINCT e.session_id), 0) AS visits
+FROM events e
+WHERE
+    e.event_id = '$page_view'
+    AND e.event_time >= ${start_time}
+    AND e.event_time <= ${end_time}
+`;
 
 export const createTopPagesSql = (start_time: number, end_time: number) => `
 SELECT
@@ -87,4 +102,4 @@ WHERE
 GROUP BY e.url
 ORDER BY pv DESC
 LIMIT 10
-`
+`;

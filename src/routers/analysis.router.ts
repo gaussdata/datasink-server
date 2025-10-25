@@ -9,5 +9,6 @@ router.get("/count", analysis.getCount);
 router.get("/view", analysis.getView);
 router.get("/pvuv", validate(pvuvValidators), analysis.getPVUV);
 router.get("/top-pages", validate(topPagesValidators), analysis.getTopPages);
+router.get("/metrics", analysis.getMetrics);
 
 export default router;
