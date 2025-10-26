@@ -150,7 +150,22 @@ LIMIT 10
 export function createTopRefererSql(start_time: number, end_time: number) {
   return `
 SELECT
-    e.referrer AS referrer,
+    CASE 
+        WHEN INSTR(e.referrer, '://') > 0 THEN 
+            SUBSTR(
+                e.referrer,
+                1,
+                INSTR(e.referrer, '://') + 2 + 
+                CASE 
+                    WHEN INSTR(SUBSTR(e.referrer, INSTR(e.referrer, '://') + 3), '/') > 0 THEN 
+                        INSTR(SUBSTR(e.referrer, INSTR(e.referrer, '://') + 3), '/') - 1
+                    ELSE LENGTH(SUBSTR(e.referrer, INSTR(e.referrer, '://') + 3))
+                END
+            )
+        WHEN INSTR(e.referrer, '/') > 0 THEN 
+            SUBSTR(e.referrer, 1, INSTR(e.referrer, '/') - 1)
+        ELSE e.referrer 
+    END AS referrer_no_path,
     COUNT(1) AS pv
 FROM events e
 WHERE
@@ -159,7 +174,7 @@ WHERE
     AND e.referrer <> ''
     AND e.event_time >= ${start_time}
     AND e.event_time <= ${end_time}
-GROUP BY referrer
+GROUP BY referrer_no_path
 ORDER BY pv DESC
 LIMIT 10
 `

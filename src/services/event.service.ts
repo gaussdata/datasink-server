@@ -179,7 +179,7 @@ class EventService {
           const result = rows.map((row: any) => {
             return {
               pv: row.pv,
-              url: row.referrer,
+              url: row.referrer_no_path,
             }
           })
           resolve(result)
