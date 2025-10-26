@@ -87,19 +87,19 @@ export function createMeticsSql(start_time: number, end_time: number) {
         WHEN COUNT(DISTINCT e.session_id) > 0 THEN
           ROUND(
             (SELECT COUNT(DISTINCT session_id) 
-             FROM events 
-             WHERE event_id = '$page_view'
-               AND event_time >= ${start_time}
-               AND event_time <= ${end_time}
-               AND session_id IN (
-                 SELECT session_id 
-                 FROM events 
-                 WHERE event_id = '$page_view'
-                   AND event_time >= ${start_time}
-                   AND event_time <= ${end_time}
-                 GROUP BY session_id 
-                 HAVING COUNT(*) = 1
-               )
+              FROM events 
+              WHERE event_id = '$page_view'
+                AND event_time >= ${start_time}
+                AND event_time <= ${end_time}
+                AND session_id IN (
+                  SELECT session_id 
+                  FROM events 
+                  WHERE event_id = '$page_view'
+                    AND event_time >= ${start_time}
+                    AND event_time <= ${end_time}
+                  GROUP BY session_id 
+                  HAVING COUNT(*) <= 2
+                )
             ) * 100.0 / COUNT(DISTINCT e.session_id),
             2
           )
@@ -108,15 +108,15 @@ export function createMeticsSql(start_time: number, end_time: number) {
       -- 平均会话时长计算
       COALESCE(
         (SELECT ROUND(AVG(session_duration), 2)
-         FROM (
-           SELECT MAX(event_time) - MIN(event_time) AS session_duration
-           FROM events
-           WHERE event_id = '$page_view'
-             AND event_time >= ${start_time}
-             AND event_time <= ${end_time}
-           GROUP BY session_id
-           HAVING COUNT(*) > 1 OR MAX(event_time) > MIN(event_time)
-         ) WHERE session_duration > 0
+          FROM (
+            SELECT MAX(event_time) - MIN(event_time) AS session_duration
+            FROM events
+            WHERE event_id = '$page_view'
+              AND event_time >= ${start_time}
+              AND event_time <= ${end_time}
+            GROUP BY session_id
+            HAVING COUNT(*) > 1 OR MAX(event_time) > MIN(event_time)
+          ) WHERE session_duration > 0
         ), 0
       ) AS ${MetricType.TOTAL_TIME}
 FROM events e
@@ -130,14 +130,36 @@ WHERE
 export function createTopPagesSql(start_time: number, end_time: number) {
   return `
 SELECT
-    e.url,
+    CASE 
+        WHEN INSTR(e.url, '?') > 0 THEN SUBSTR(e.url, 1, INSTR(e.url, '?') - 1)
+        WHEN INSTR(e.url, '#') > 0 THEN SUBSTR(e.url, 1, INSTR(e.url, '#') - 1)
+        ELSE e.url 
+    END AS clean_url,
     COUNT(1) AS pv
 FROM events e
 WHERE
     e.event_id = '$page_view'
     AND e.event_time >= ${start_time}
     AND e.event_time <= ${end_time}
-GROUP BY e.url
+GROUP BY clean_url
+ORDER BY pv DESC
+LIMIT 10
+`
+}
+
+export function createTopRefererSql(start_time: number, end_time: number) {
+  return `
+SELECT
+    e.referrer AS referrer,
+    COUNT(1) AS pv
+FROM events e
+WHERE
+    e.event_id = '$page_view'
+    AND e.referrer IS NOT NULL
+    AND e.referrer <> ''
+    AND e.event_time >= ${start_time}
+    AND e.event_time <= ${end_time}
+GROUP BY referrer
 ORDER BY pv DESC
 LIMIT 10
 `
