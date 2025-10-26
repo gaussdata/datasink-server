@@ -76,20 +76,32 @@ class Collector {
   }
 
   // 入口 - 处理请求
-  track(req: Request, res: Response) {
+  public track(req: Request, res: Response) {
     const jsonData = req.body
 
     if (!jsonData) {
+      logger.error('No parameters provided in request')
       return res.status(400).send('Bad Request: No parameters provided') // 400 BAD REQUEST
     }
 
     if (jsonData.length > MAX_JSON_SIZE) {
+      logger.error('Request data too large:', jsonData.length)
       return res.status(413).send('Content Too Large') // 413 CONTENT TOO LARGE
     }
 
     let list
     try {
-      list = JSON.parse(jsonData)
+      if (Array.isArray(jsonData)) {
+        list = jsonData
+      }
+      else if (typeof jsonData === 'string') {
+        list = JSON.parse(jsonData)
+      }
+      else {
+        logger.error('Invalid data format')
+        return res.status(400).send('Bad Request: Invalid data format') // 400 BAD REQUEST
+      }
+      logger.info(`Received data with ${list.length} records`)
       list.forEach((row: any) => {
         this.produce(row)
       })
