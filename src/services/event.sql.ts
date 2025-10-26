@@ -98,7 +98,7 @@ export function createMeticsSql(start_time: number, end_time: number) {
                     AND event_time >= ${start_time}
                     AND event_time <= ${end_time}
                   GROUP BY session_id 
-                  HAVING COUNT(*) = 1
+                  HAVING COUNT(*) <= 2
                 )
             ) * 100.0 / COUNT(DISTINCT e.session_id),
             2
