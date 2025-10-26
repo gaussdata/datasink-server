@@ -10,6 +10,7 @@ import {
   createMeticsSql,
   createPVUVSql,
   createTopPagesSql,
+  createTopRefererSql,
   createViewSql,
 } from './event.sql.js'
 
@@ -158,6 +159,27 @@ class EventService {
             return {
               pv: row.pv,
               url: row.clean_url,
+            }
+          })
+          resolve(result)
+        }
+      })
+    })
+  }
+
+  async getTopReferers(start_time: number, end_time: number) {
+    const query = createTopRefererSql(start_time, end_time)
+    const connection = await Database.getConnection()
+    return await new Promise((resolve, reject) => {
+      connection.all(query, (err, rows) => {
+        if (err) {
+          reject(err)
+        }
+        else {
+          const result = rows.map((row: any) => {
+            return {
+              pv: row.pv,
+              url: row.referrer,
             }
           })
           resolve(result)

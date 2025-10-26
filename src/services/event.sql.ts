@@ -146,3 +146,21 @@ ORDER BY pv DESC
 LIMIT 10
 `
 }
+
+export function createTopRefererSql(start_time: number, end_time: number) {
+  return `
+SELECT
+    e.referrer AS referrer,
+    COUNT(1) AS pv
+FROM events e
+WHERE
+    e.event_id = '$page_view'
+    AND e.referrer IS NOT NULL
+    AND e.referrer <> ''
+    AND e.event_time >= ${start_time}
+    AND e.event_time <= ${end_time}
+GROUP BY referrer
+ORDER BY pv DESC
+LIMIT 10
+`
+}

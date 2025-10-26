@@ -51,6 +51,18 @@ class Analysis {
   }
 
   @cacheResponse()
+  async getTopReferers(req: Request, res: Response) {
+    const { start_time = 0, end_time = Date.now() } = req.query
+    const topReferersInfo = await eventService.getTopReferers(Number(start_time), Number(end_time))
+    res.send({
+      data: topReferersInfo,
+    })
+    return {
+      data: topReferersInfo,
+    }
+  }
+
+  @cacheResponse()
   async getMetrics(req: Request, res: Response) {
     const { start_time = 0, end_time = Date.now() } = req.query
     const metricsInfo = await eventService.getMetrics(Number(start_time), Number(end_time))
