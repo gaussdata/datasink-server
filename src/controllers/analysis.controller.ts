@@ -73,6 +73,30 @@ class Analysis {
       data: metricsInfo,
     }
   }
+
+  @cacheResponse()
+  async getTopOs(req: Request, res: Response) {
+    const { start_time = 0, end_time = Date.now() } = req.query
+    const topOsInfo = await eventService.getTopOs(Number(start_time), Number(end_time))
+    res.send({
+      data: topOsInfo,
+    })
+    return {
+      data: topOsInfo,
+    }
+  }
+
+  @cacheResponse()
+  async getTopBrowser(req: Request, res: Response) {
+    const { start_time = 0, end_time = Date.now() } = req.query
+    const topBrowserInfo = await eventService.getTopBrowser(Number(start_time), Number(end_time))
+    res.send({
+      data: topBrowserInfo,
+    })
+    return {
+      data: topBrowserInfo,
+    }
+  }
 }
 
 const analysis = new Analysis()

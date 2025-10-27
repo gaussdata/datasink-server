@@ -17,14 +17,18 @@ CREATE TABLE IF NOT EXISTS events
     viewport_width INT,
     viewport_height INT,
     user_agent VARCHAR
-);`
+);
+`
+export function addColumnsToEvents(table: string, column: string, dataType: string) {
+  return `ALTER TABLE ${table} ADD COLUMN ${column} ${dataType};`
+}
 
 export const createInsertSql = `
 INSERT INTO events 
     (
     event_id, event_time, aa_id, session_id, lib, 
     lib_version, url, title, referrer, screen_width,
-    screen_height, viewport_width, viewport_height, user_agent
+    screen_height, viewport_width, viewport_height, user_agent, browser, os, device_type
     )
 VALUES`
 
@@ -175,6 +179,38 @@ WHERE
     AND e.event_time >= ${start_time}
     AND e.event_time <= ${end_time}
 GROUP BY referrer_no_path
+ORDER BY pv DESC
+LIMIT 10
+`
+}
+
+export function createTopOsSql(start_time: number, end_time: number) {
+  return `
+SELECT
+    e.os,
+    COUNT(1) AS pv
+FROM events e
+WHERE
+    e.event_id = '$page_view'
+    AND e.event_time >= ${start_time}
+    AND e.event_time <= ${end_time}
+GROUP BY os
+ORDER BY pv DESC
+LIMIT 10
+`
+}
+
+export function createTopBrowserSql(start_time: number, end_time: number) {
+  return `
+SELECT
+    e.browser,
+    COUNT(1) AS pv
+FROM events e
+WHERE
+    e.event_id = '$page_view'
+    AND e.event_time >= ${start_time}
+    AND e.event_time <= ${end_time}
+GROUP BY browser
 ORDER BY pv DESC
 LIMIT 10
 `

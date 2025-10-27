@@ -42,6 +42,9 @@ class Collector {
       viewport_height: vo.body.window_height,
       //
       user_agent: vo.body.user_agent,
+      os: vo.body.os,
+      browser: vo.body.browser,
+      device_type: vo.body.device_type,
     }
     return dto
   }

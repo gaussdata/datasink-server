@@ -35,3 +35,9 @@ GET http://localhost:3000/analysis/top-referers HTTP/1.1
 
 ### Metrics
 GET http://localhost:3000/analysis/metrics HTTP/1.1
+
+### Top Os
+GET http://localhost:3000/analysis/top-os HTTP/1.1
+
+### Top Browser
+GET http://localhost:3000/analysis/top-browser HTTP/1.1
