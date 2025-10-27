@@ -124,6 +124,9 @@ class EventService {
       return {
         pv: row.pv,
         url: row.clean_url,
+        value: row.pv,
+        label: row.clean_url,
+        is_url: true,
       }
     })
   }
@@ -135,6 +138,9 @@ class EventService {
       return {
         pv: row.pv,
         url: row.referrer_no_path,
+        value: row.pv,
+        label: row.referrer_no_path,
+        is_url: true,
       }
     })
   }
@@ -152,6 +158,8 @@ class EventService {
       return {
         pv: row.pv,
         os: row.os,
+        value: row.pv,
+        label: row.os,
       }
     })
   }
@@ -163,6 +171,8 @@ class EventService {
       return {
         pv: row.pv,
         browser: row.browser,
+        value: row.pv,
+        label: row.browser,
       }
     })
   }
