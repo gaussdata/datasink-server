@@ -17,30 +17,20 @@ CREATE TABLE IF NOT EXISTS events
     viewport_width INT,
     viewport_height INT,
     user_agent VARCHAR
-);`
+);
+`
+export function addColumnsToEvents(table: string, column: string, dataType: string) {
+  return `ALTER TABLE ${table} ADD COLUMN ${column} ${dataType};`
+}
 
 export const createInsertSql = `
 INSERT INTO events 
     (
     event_id, event_time, aa_id, session_id, lib, 
     lib_version, url, title, referrer, screen_width,
-    screen_height, viewport_width, viewport_height, user_agent
+    screen_height, viewport_width, viewport_height, user_agent, browser, os, device_type
     )
 VALUES`
-
-export const createCountSql = ` 
-SELECT
-    COALESCE(COUNT(1), 0) AS count  -- 事件数量
-FROM events`
-
-export const createViewSql = ` 
-SELECT
-    COALESCE(COUNT(1), 0) AS pv,  -- 访问量  
-    COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv  -- 独立用户数
-FROM events e
-WHERE
-    e.event_id = '$page_view'
-`
 
 export function createPVUVSql(start_time: number, end_time: number, date_evel: string) {
   let dateFormat = ''
@@ -150,16 +140,61 @@ LIMIT 10
 export function createTopRefererSql(start_time: number, end_time: number) {
   return `
 SELECT
-    e.referrer AS referrer,
+    CASE 
+        WHEN INSTR(e.referrer, '://') > 0 THEN 
+            SUBSTR(
+                e.referrer,
+                1,
+                INSTR(e.referrer, '://') + 2 + 
+                CASE 
+                    WHEN INSTR(SUBSTR(e.referrer, INSTR(e.referrer, '://') + 3), '/') > 0 THEN 
+                        INSTR(SUBSTR(e.referrer, INSTR(e.referrer, '://') + 3), '/') - 1
+                    ELSE LENGTH(SUBSTR(e.referrer, INSTR(e.referrer, '://') + 3))
+                END
+            )
+        WHEN INSTR(e.referrer, '/') > 0 THEN 
+            SUBSTR(e.referrer, 1, INSTR(e.referrer, '/') - 1)
+        ELSE e.referrer 
+    END AS referrer_no_path,
     COUNT(1) AS pv
 FROM events e
 WHERE
     e.event_id = '$page_view'
-    AND e.referrer IS NOT NULL
-    AND e.referrer <> ''
     AND e.event_time >= ${start_time}
     AND e.event_time <= ${end_time}
-GROUP BY referrer
+GROUP BY referrer_no_path
+ORDER BY pv DESC
+LIMIT 10
+`
+}
+
+export function createTopOsSql(start_time: number, end_time: number) {
+  return `
+SELECT
+    e.os,
+    COUNT(1) AS pv
+FROM events e
+WHERE
+    e.event_id = '$page_view'
+    AND e.event_time >= ${start_time}
+    AND e.event_time <= ${end_time}
+GROUP BY os
+ORDER BY pv DESC
+LIMIT 10
+`
+}
+
+export function createTopBrowserSql(start_time: number, end_time: number) {
+  return `
+SELECT
+    e.browser,
+    COUNT(1) AS pv
+FROM events e
+WHERE
+    e.event_id = '$page_view'
+    AND e.event_time >= ${start_time}
+    AND e.event_time <= ${end_time}
+GROUP BY browser
 ORDER BY pv DESC
 LIMIT 10
 `
