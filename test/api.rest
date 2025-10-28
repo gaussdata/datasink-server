@@ -6,25 +6,19 @@ Content-Type: text/plain
 
 [{"head":{"code":"$page_load","lib":"js","lib_version":"0.0.3","time":1761491684567,"aaid":"991dd3f7ef39c981fbcd7eac2a8eae0b","sid":"d0de5910c6b56560b3d8ce4776bfea2e"},"body":{"url":"https://www.gausszhou.top/article/blog/55.html","path":"/article/blog/55.html","title":"记录一下网站优化 | Gauss Zhou","referrer":"https://www.bing.com/","dpr":1.5,"user_agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0","language":"zh-CN","os":"Windows","browser":"Chrome","device_type":"Desktop","timezone":"Asia/Shanghai","screen_width":1707,"screen_height":1067,"window_width":809,"window_height":941}},{"head":{"code":"$page_view","lib":"js","lib_version":"0.0.3","time":1761491684567,"aaid":"991dd3f7ef39c981fbcd7eac2a8eae0b","sid":"d0de5910c6b56560b3d8ce4776bfea2e"},"body":{"url":"https://www.gausszhou.top/article/blog/55.html","path":"/article/blog/55.html","title":"记录一下网站优化 | Gauss Zhou","referrer":"https://www.bing.com/","dpr":1.5,"user_agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0","language":"zh-CN","os":"Windows","browser":"Chrome","device_type":"Desktop","timezone":"Asia/Shanghai","screen_width":1707,"screen_height":1067,"window_width":809,"window_height":941,"view_position":941}}]
 
-### Count
-GET http://localhost:3000/analysis/count HTTP/1.1
-
-### View
-GET http://localhost:3000/analysis/view HTTP/1.1
-
-### Minute
+### PVUV Minute
 GET http://localhost:3000/analysis/pvuv?date_level=minute HTTP/1.1
 
-### Hour
+### PVUV Hour
 GET http://localhost:3000/analysis/pvuv?date_level=hour HTTP/1.1
 
-### Day
+### PVUV Day
 GET http://localhost:3000/analysis/pvuv?date_level=day HTTP/1.1
 
-### Week
+### PVUV Week
 GET http://localhost:3000/analysis/pvuv?date_level=week HTTP/1.1
 
-### Month
+### PVUV Month
 GET http://localhost:3000/analysis/pvuv?date_level=month HTTP/1.1
 
 ### Top Pages
@@ -36,8 +30,8 @@ GET http://localhost:3000/analysis/top-referers HTTP/1.1
 ### Metrics
 GET http://localhost:3000/analysis/metrics HTTP/1.1
 
-### Top Os
-GET http://localhost:3000/analysis/top-os HTTP/1.1
+### Top OS
+GET http://localhost:3000/analysis/top-oses HTTP/1.1
 
 ### Top Browser
-GET http://localhost:3000/analysis/top-browser HTTP/1.1
+GET http://localhost:3000/analysis/top-browsers HTTP/1.1

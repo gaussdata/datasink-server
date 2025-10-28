@@ -5,24 +5,14 @@ import eventService from '@/services/event.service.js'
 
 class Analysis {
   @cacheResponse()
-  async getCount(req: Request, res: Response) {
-    const countInfo = await eventService.getCount()
+  async getMetrics(req: Request, res: Response) {
+    const { start_time = 0, end_time = Date.now() } = req.query
+    const metricsInfo = await eventService.getMetrics(Number(start_time), Number(end_time))
     res.send({
-      data: countInfo,
+      data: metricsInfo,
     })
     return {
-      data: countInfo,
-    }
-  }
-
-  @cacheResponse()
-  async getView(req: Request, res: Response) {
-    const viewInfo = await eventService.getView()
-    res.send({
-      data: viewInfo,
-    })
-    return {
-      data: viewInfo,
+      data: metricsInfo,
     }
   }
 
@@ -59,18 +49,6 @@ class Analysis {
     })
     return {
       data: topReferersInfo,
-    }
-  }
-
-  @cacheResponse()
-  async getMetrics(req: Request, res: Response) {
-    const { start_time = 0, end_time = Date.now() } = req.query
-    const metricsInfo = await eventService.getMetrics(Number(start_time), Number(end_time))
-    res.send({
-      data: metricsInfo,
-    })
-    return {
-      data: metricsInfo,
     }
   }
 

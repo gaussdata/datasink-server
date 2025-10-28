@@ -6,7 +6,6 @@ import logger from '@/utils/logger.js'
 import { ignoreError } from '@/utils/promise.js'
 import {
   addColumnsToEvents,
-  createCountSql,
   createEventsSql,
   createInsertSql,
   createMeticsSql,
@@ -15,7 +14,6 @@ import {
   createTopOsSql,
   createTopPagesSql,
   createTopRefererSql,
-  createViewSql,
 } from './event.sql.js'
 
 class EventService {
@@ -87,18 +85,6 @@ class EventService {
     return Database.insert(query, params)
   }
 
-  async getCount() {
-    const query = createCountSql
-    const rows = await Database.query(query) || []
-    return rows[0] || { pv: 0, uv: 0 }
-  }
-
-  async getView() {
-    const query = createViewSql
-    const rows = await Database.query(query) || []
-    return rows[0] || { pv: 0, uv: 0 }
-  }
-
   async getPVUV(start_time: number, end_time: number, date_level: DateLevel) {
     const startTime = clampStartTimeByUnit(start_time, end_time, date_level)
     const query = createPVUVSql(startTime, end_time, date_level)
@@ -157,9 +143,9 @@ class EventService {
     return rows.map((row: any) => {
       return {
         pv: row.pv,
-        os: row.os,
+        os: row.os || 'Unknown',
         value: row.pv,
-        label: row.os,
+        label: row.os || 'Unknown',
       }
     })
   }
@@ -170,9 +156,9 @@ class EventService {
     return rows.map((row: any) => {
       return {
         pv: row.pv,
-        browser: row.browser,
+        browser: row.browser || 'Unknown',
         value: row.pv,
-        label: row.browser,
+        label: row.browser || 'Unknown',
       }
     })
   }

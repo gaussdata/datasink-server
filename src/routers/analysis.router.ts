@@ -5,13 +5,11 @@ import { dateValidators } from './analysis.validator.js'
 
 const router = express.Router()
 
-router.get('/count', analysis.getCount)
-router.get('/view', analysis.getView)
 router.get('/pvuv', validate(dateValidators), analysis.getPVUV)
 router.get('/top-pages', validate(dateValidators), analysis.getTopPages)
 router.get('/top-referers', validate(dateValidators), analysis.getTopReferers)
 router.get('/metrics', analysis.getMetrics)
-router.get('/top-os', validate(dateValidators), analysis.getTopOs)
-router.get('/top-browser', validate(dateValidators), analysis.getTopBrowser)
+router.get('/top-oses', validate(dateValidators), analysis.getTopOs)
+router.get('/top-browsers', validate(dateValidators), analysis.getTopBrowser)
 
 export default router

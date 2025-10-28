@@ -32,20 +32,6 @@ INSERT INTO events
     )
 VALUES`
 
-export const createCountSql = ` 
-SELECT
-    COALESCE(COUNT(1), 0) AS count  -- 事件数量
-FROM events`
-
-export const createViewSql = ` 
-SELECT
-    COALESCE(COUNT(1), 0) AS pv,  -- 访问量  
-    COALESCE(COUNT(DISTINCT e.aa_id), 0) AS uv  -- 独立用户数
-FROM events e
-WHERE
-    e.event_id = '$page_view'
-`
-
 export function createPVUVSql(start_time: number, end_time: number, date_evel: string) {
   let dateFormat = ''
   switch (date_evel) {
