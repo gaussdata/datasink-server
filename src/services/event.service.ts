@@ -137,9 +137,9 @@ class EventService {
     return rows.map((row: any) => {
       return {
         pv: row.pv,
-        url: row.referrer_no_path,
+        url: row.referrer_no_path || 'Direct',
         value: row.pv,
-        label: row.referrer_no_path,
+        label: row.referrer_no_path || 'Direct',
         is_url: true,
       }
     })

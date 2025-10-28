@@ -174,8 +174,6 @@ SELECT
 FROM events e
 WHERE
     e.event_id = '$page_view'
-    AND e.referrer IS NOT NULL
-    AND e.referrer <> ''
     AND e.event_time >= ${start_time}
     AND e.event_time <= ${end_time}
 GROUP BY referrer_no_path
