@@ -251,11 +251,11 @@ export function clampStartTime(startTime: number, endTime: number, distance: num
 export function clampStartTimeByUnit(startTime: number, endTime: number, unit: DateLevel) {
   switch (unit) {
     case 'minute':
-      return clampStartTime(startTime, endTime, 60 * ONE_MINUTE)
+      return clampStartTime(startTime, endTime, 120 * ONE_MINUTE)
     case 'hour':
-      return clampStartTime(startTime, endTime, 24 * ONE_HOUR)
+      return clampStartTime(startTime, endTime, 72 * ONE_HOUR)
     case 'day':
-      return clampStartTime(startTime, endTime, 30 * ONE_DAY)
+      return clampStartTime(startTime, endTime, 90 * ONE_DAY)
     case 'week':
       return clampStartTime(startTime, endTime, 24 * ONE_WEEK)
     case 'month':

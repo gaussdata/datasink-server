@@ -23,28 +23,35 @@ class Collector {
 
   private createRow(vo: any) {
     const dto = {
+      // Event
       event_id: vo.head?.code,
       event_time: vo.head?.time,
-      //
+      // ID
       aa_id: vo.head?.aaid,
       session_id: vo.head?.sid,
-      //
+      // 版本
       lib: vo.head?.lib,
       lib_version: vo.head?.lib_version,
-      //
+      // Props
       url: vo.body.url,
       title: vo.body.title,
       referrer: vo.body.referrer,
-      //
+      // Screen
       screen_width: vo.body.screen_width,
       screen_height: vo.body.screen_height,
+      screen_resolution: vo.body.screen_resolution,
+      // Viewport
       viewport_width: vo.body.window_width,
       viewport_height: vo.body.window_height,
-      //
+      viewport_resolution: vo.body.window_resolution,
+      // Device
       user_agent: vo.body.user_agent,
       os: vo.body.os,
       browser: vo.body.browser,
       device_type: vo.body.device_type,
+      // 地区和语言
+      timezone: vo.body.timezone,
+      language: vo.body.language,
     }
     return dto
   }
