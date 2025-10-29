@@ -26,6 +26,9 @@ class EventService {
     await ignoreError(this.addColumns('events', 'os', 'VARCHAR(100)'))
     await ignoreError(this.addColumns('events', 'browser', 'VARCHAR(100)'))
     await ignoreError(this.addColumns('events', 'device_type', 'VARCHAR(100)'))
+    await ignoreError(this.addColumns('events', 'resolution', 'VARCHAR(100)'))
+    await ignoreError(this.addColumns('events', 'timezone', 'VARCHAR(100)'))
+    await ignoreError(this.addColumns('events', 'language', 'VARCHAR(100)'))
   }
 
   async createTable() {
@@ -57,12 +60,7 @@ class EventService {
       logger.info('No events to add.', events)
       return
     }
-
-    const placeholders = events
-      .map(() => `(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-      .join(', ')
-
-    const params = events.flatMap(event => [
+    const flatFn = (event: any) => [
       event.event_id,
       event.event_time,
       event.aa_id,
@@ -80,7 +78,14 @@ class EventService {
       event.os,
       event.browser,
       event.device_type,
-    ])
+      event.screen_resolution,
+      event.timezone,
+      event.language,
+    ]
+    const params = events.flatMap(flatFn)
+    const placeholders = events
+      .map(() => `(${Array.from({ length: flatFn({}).length }).map(() => '?').join(', ')})`)
+      .join(', ')
     const query = `${createInsertSql} ${placeholders}`
     return Database.insert(query, params)
   }
