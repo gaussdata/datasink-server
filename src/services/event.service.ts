@@ -4,7 +4,6 @@ import { Metrics } from '@/types/metrics.js'
 import { Database } from '@/utils/database.js'
 import { clampStartTimeByUnit, generateDatesByTime } from '@/utils/date.js'
 import logger from '@/utils/logger.js'
-import { ignoreError } from '@/utils/promise.js'
 import {
   addColumnsToEvents,
   createEventsSql,
@@ -24,12 +23,6 @@ class EventService {
 
   async init() {
     await this.createTable()
-    await ignoreError(this.addColumns('events', 'os', 'VARCHAR(100)'))
-    await ignoreError(this.addColumns('events', 'browser', 'VARCHAR(100)'))
-    await ignoreError(this.addColumns('events', 'device_type', 'VARCHAR(100)'))
-    await ignoreError(this.addColumns('events', 'resolution', 'VARCHAR(100)'))
-    await ignoreError(this.addColumns('events', 'timezone', 'VARCHAR(100)'))
-    await ignoreError(this.addColumns('events', 'language', 'VARCHAR(100)'))
   }
 
   async createTable() {

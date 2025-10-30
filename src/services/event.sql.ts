@@ -5,18 +5,29 @@ CREATE TABLE IF NOT EXISTS events
 (
     event_id VARCHAR, 
     event_time BIGINT,
+    -- 事件上下文
     aa_id VARCHAR,
     session_id VARCHAR,
     lib VARCHAR,
     lib_version VARCHAR,
+    -- 事件属性
     url VARCHAR,
     title VARCHAR,
     referrer VARCHAR,
+    -- 屏幕信息
     screen_width INT,
     screen_height INT,
+    resolution VARCHAR,
     viewport_width INT,
     viewport_height INT,
-    user_agent VARCHAR
+    -- 设备信息
+    user_agent VARCHAR,
+    os VARCHAR,
+    browser VARCHAR,
+    device_type VARCHAR,
+    -- 时区和语言
+    timezone VARCHAR,
+    language VARCHAR
 );
 `
 export function addColumnsToEvents(table: string, column: string, dataType: string) {
@@ -103,12 +114,12 @@ export function createMeticsSql(start_time: number, end_time: number) {
           FROM (
             SELECT MAX(event_time) - MIN(event_time) AS session_duration
             FROM events
-            WHERE event_id = '$page_view'
+            WHERE (event_id = '$page_view' OR event_id = '$page_leave')
               AND event_time >= ${start_time}
               AND event_time <= ${end_time}
             GROUP BY session_id
-            HAVING COUNT(*) > 1 OR MAX(event_time) > MIN(event_time)
-          ) WHERE session_duration > 0
+            HAVING COUNT(*) > 1 OR MAX(event_time) >= MIN(event_time)
+          ) WHERE session_duration >= 0
         ), 0
       ) AS ${MetricType.TOTAL_TIME}
 FROM events e
