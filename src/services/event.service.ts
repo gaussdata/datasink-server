@@ -1,3 +1,4 @@
+import type { IEventDto } from './event.model.js'
 import type { DateLevel } from '@/types/date.js'
 import { Metrics } from '@/types/metrics.js'
 import { Database } from '@/utils/database.js'
@@ -55,12 +56,12 @@ class EventService {
     }
   }
 
-  async addEvents(events: any) {
+  async addEvents(events: IEventDto[]) {
     if (!Array.isArray(events) || events.length === 0) {
       logger.info('No events to add.', events)
       return
     }
-    const flatFn = (event: any) => [
+    const flatFn = (event: IEventDto) => [
       event.event_id,
       event.event_time,
       event.aa_id,
@@ -72,19 +73,19 @@ class EventService {
       event.referrer,
       event.screen_width,
       event.screen_height,
+      event.screen_resolution,
       event.viewport_width,
       event.viewport_height,
       event.user_agent,
       event.os,
       event.browser,
       event.device_type,
-      event.screen_resolution,
       event.timezone,
       event.language,
     ]
     const params = events.flatMap(flatFn)
     const placeholders = events
-      .map(() => `(${Array.from({ length: flatFn({}).length }).map(() => '?').join(', ')})`)
+      .map(() => `(${Array.from({ length: flatFn(events[0]).length }).map(() => '?').join(', ')})`)
       .join(', ')
     const query = `${createInsertSql} ${placeholders}`
     return Database.insert(query, params)

@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express'
+import type { IEventDto, IEventVo } from '@/services/event.model'
 import eventService from '@/services/event.service.js'
 import logger from '@/utils/logger.js'
 
@@ -21,8 +22,8 @@ class Collector {
     }, this.WRITE_INTERVAL)
   }
 
-  private createRow(vo: any) {
-    const dto = {
+  private createRow(vo: IEventVo): IEventDto {
+    return {
       // Event
       event_id: vo.head?.code,
       event_time: vo.head?.time,
@@ -53,7 +54,6 @@ class Collector {
       timezone: vo.body.timezone,
       language: vo.body.language,
     }
-    return dto
   }
 
   // 生产 - 添加事件到队列

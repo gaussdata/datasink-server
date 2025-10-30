@@ -26,10 +26,11 @@ export function addColumnsToEvents(table: string, column: string, dataType: stri
 export const createInsertSql = `
 INSERT INTO events 
     (
-    event_id, event_time, aa_id, session_id, lib, 
-    lib_version, url, title, referrer, screen_width,
-    screen_height, viewport_width, viewport_height, user_agent, browser,
-    os, device_type, resolution, timezone, language
+    event_id, event_time, aa_id, session_id,
+    lib, lib_version, 
+    url, title, referrer,
+    screen_width, screen_height, resolution, viewport_width, viewport_height,
+    user_agent, os, browser, device_type, timezone, language
     )
 VALUES`
 
