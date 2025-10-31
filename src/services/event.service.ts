@@ -1,9 +1,9 @@
+import type { IEventDto } from './event.model.js'
 import type { DateLevel } from '@/types/date.js'
 import { Metrics } from '@/types/metrics.js'
 import { Database } from '@/utils/database.js'
 import { clampStartTimeByUnit, generateDatesByTime } from '@/utils/date.js'
 import logger from '@/utils/logger.js'
-import { ignoreError } from '@/utils/promise.js'
 import {
   addColumnsToEvents,
   createEventsSql,
@@ -23,20 +23,14 @@ class EventService {
 
   async init() {
     await this.createTable()
-    await ignoreError(this.addColumns('events', 'os', 'VARCHAR(100)'))
-    await ignoreError(this.addColumns('events', 'browser', 'VARCHAR(100)'))
-    await ignoreError(this.addColumns('events', 'device_type', 'VARCHAR(100)'))
-    await ignoreError(this.addColumns('events', 'resolution', 'VARCHAR(100)'))
-    await ignoreError(this.addColumns('events', 'timezone', 'VARCHAR(100)'))
-    await ignoreError(this.addColumns('events', 'language', 'VARCHAR(100)'))
   }
 
   async createTable() {
     const query = createEventsSql
     logger.info('create table events')
     try {
-      const result = await Database.query(query)
-      logger.info('create table success', result)
+      await Database.exec(query)
+      logger.info('create table success')
     }
     catch (error) {
       logger.error('create table error', error)
@@ -47,20 +41,20 @@ class EventService {
     const query = addColumnsToEvents(table, column, dataType)
     logger.info('add columns to events', column)
     try {
-      const result = await Database.query(query)
-      logger.info('add columns to events success', result)
+      await Database.exec(query)
+      logger.info('add columns to events success')
     }
     catch (error) {
       logger.error('add columns to events error', error)
     }
   }
 
-  async addEvents(events: any) {
+  async addEvents(events: IEventDto[]) {
     if (!Array.isArray(events) || events.length === 0) {
       logger.info('No events to add.', events)
       return
     }
-    const flatFn = (event: any) => [
+    const flatFn = (event: IEventDto) => [
       event.event_id,
       event.event_time,
       event.aa_id,
@@ -72,19 +66,19 @@ class EventService {
       event.referrer,
       event.screen_width,
       event.screen_height,
+      event.screen_resolution,
       event.viewport_width,
       event.viewport_height,
       event.user_agent,
       event.os,
       event.browser,
       event.device_type,
-      event.screen_resolution,
       event.timezone,
       event.language,
     ]
     const params = events.flatMap(flatFn)
     const placeholders = events
-      .map(() => `(${Array.from({ length: flatFn({}).length }).map(() => '?').join(', ')})`)
+      .map(() => `(${Array.from({ length: flatFn(events[0]).length }).map(() => '?').join(', ')})`)
       .join(', ')
     const query = `${createInsertSql} ${placeholders}`
     return Database.insert(query, params)

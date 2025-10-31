@@ -1,42 +1,34 @@
-import sqlite3 from 'sqlite3'
+import BetterSqlite3 from 'better-sqlite3'
 
 const file = 'db/sqlite3.db'
 
 export class Database {
-  static connection: sqlite3.Database
+  static connection: BetterSqlite3.Database
 
   static async getConnection() {
     if (!this.connection) {
-      this.connection = await new sqlite3.Database(file)
+      this.connection = new BetterSqlite3(file)
     }
     return this.connection
   }
 
   static async insert(sql: string, params: any[]) {
     const connection = await Database.getConnection()
-    return new Promise((resolve, reject) => {
-      connection.run(sql, params, (err: any, result: any) => {
-        if (err) {
-          reject(err)
-        }
-        else {
-          resolve(result)
-        }
-      })
-    })
+    const stmt = connection.prepare(sql)
+    const result = stmt.run(params)
+    return result
   }
 
   static async query(sql: string): Promise<any[]> {
     const connection = await Database.getConnection()
-    return new Promise((resolve, reject) => {
-      connection.all(sql, (err, rows: any[]) => {
-        if (err) {
-          reject(err)
-        }
-        else {
-          resolve(rows)
-        }
-      })
-    })
+    const stmt = connection.prepare(sql)
+    const rows = stmt.all()
+    return rows
+  }
+
+  static async exec(sql: string) {
+    const connection = await Database.getConnection()
+    connection.exec(sql)
+    return true
   }
 }
