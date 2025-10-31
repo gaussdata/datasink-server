@@ -29,8 +29,8 @@ class EventService {
     const query = createEventsSql
     logger.info('create table events')
     try {
-      const result = await Database.query(query)
-      logger.info('create table success', result)
+      await Database.exec(query)
+      logger.info('create table success')
     }
     catch (error) {
       logger.error('create table error', error)
@@ -41,8 +41,8 @@ class EventService {
     const query = addColumnsToEvents(table, column, dataType)
     logger.info('add columns to events', column)
     try {
-      const result = await Database.query(query)
-      logger.info('add columns to events success', result)
+      await Database.exec(query)
+      logger.info('add columns to events success')
     }
     catch (error) {
       logger.error('add columns to events error', error)
