@@ -19,7 +19,7 @@ app.use(middlewareCors) // use nginx
 app.use(middlewareLog)
 
 // 当客户端以get方式访问/路由时
-app.get('/', (req, res) => {
+app.get('/', (req: express.Request, res: express.Response) => {
   res.send('Hello Express')
 })
 
