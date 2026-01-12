@@ -8,11 +8,11 @@
 
 ## API
 
-- `POST /t` 埋点接口
+- `POST /collector/t` 埋点接口
 
-- `GET /metrics` 访问量统计
-- `GET /pvuv` 访问量趋势
-- `GET /top-pages` 页面 Top10
-- `GET /top-referers` 来源 Top10
-- `GET /top-oses` 操作系统 Top10
-- `GET /top-browsers` 浏览器 Top10
+- `GET /analysis/metrics` 访问量统计
+- `GET /analysis/pvuv` 访问量趋势
+- `GET /analysis/top-pages` 页面 Top10
+- `GET /analysis/top-referers` 来源 Top10
+- `GET /analysis/top-oses` 操作系统 Top10
+- `GET /analysis/top-browsers` 浏览器 Top10
