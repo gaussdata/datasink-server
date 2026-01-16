@@ -78,9 +78,9 @@ class EventService {
     return Database.insert(query, params)
   }
 
-  async getPVUV(start_time: number, end_time: number, date_level: DateLevel) {
+  async getPVUV(start_time: number, end_time: number, date_level: DateLevel, host: string) {
     const startTime = clampStartTimeByUnit(start_time, end_time, date_level)
-    const query = createPVUVSql(startTime, end_time, date_level)
+    const query = createPVUVSql(startTime, end_time, date_level, host)
     const dates = generateDatesByTime(startTime, end_time, date_level)
     const rows = await Database.query(query) || []
     const map: any = {}
@@ -96,8 +96,8 @@ class EventService {
     })
   }
 
-  async getTopPages(start_time: number, end_time: number) {
-    const query = createTopPagesSql(start_time, end_time)
+  async getTopPages(start_time: number, end_time: number, host: string) {
+    const query = createTopPagesSql(start_time, end_time, host)
     const rows = await Database.query(query) || []
     return rows.map((row: any) => {
       return {
@@ -110,8 +110,8 @@ class EventService {
     })
   }
 
-  async getTopReferers(start_time: number, end_time: number) {
-    const query = createTopRefererSql(start_time, end_time)
+  async getTopReferers(start_time: number, end_time: number, host: string) {
+    const query = createTopRefererSql(start_time, end_time, host)
     const rows = await Database.query(query) || []
     return rows.map((row: any) => {
       return {
@@ -124,14 +124,14 @@ class EventService {
     })
   }
 
-  async getMetrics(start_time: number, end_time: number) {
-    const query = createMeticsSql(start_time, end_time)
+  async getMetrics(start_time: number, end_time: number, host: string) {
+    const query = createMeticsSql(start_time, end_time, host)
     const rows = await Database.query(query) || []
     return rows[0] || new Metrics()
   }
 
-  async getTopOs(start_time: number, end_time: number) {
-    const query = createTopOsSql(start_time, end_time)
+  async getTopOs(start_time: number, end_time: number, host: string) {
+    const query = createTopOsSql(start_time, end_time, host)
     const rows = await Database.query(query) || []
     return rows.map((row: any) => {
       return {
@@ -143,8 +143,8 @@ class EventService {
     })
   }
 
-  async getTopBrowser(start_time: number, end_time: number) {
-    const query = createTopBrowserSql(start_time, end_time)
+  async getTopBrowser(start_time: number, end_time: number, host: string) {
+    const query = createTopBrowserSql(start_time, end_time, host)
     const rows = await Database.query(query) || []
     return rows.map((row: any) => {
       return {

@@ -45,7 +45,7 @@ INSERT INTO events
     )
 VALUES`
 
-export function createPVUVSql(start_time: number, end_time: number, date_evel: string) {
+export function createPVUVSql(start_time: number, end_time: number, date_evel: string, host: string) {
   let dateFormat = ''
   switch (date_evel) {
     case 'minute':
@@ -74,12 +74,13 @@ WHERE
     e.event_id = '$page_view'
     AND e.event_time >= ${start_time}
     AND e.event_time <= ${end_time}
+    AND e.host = '${host}'
 GROUP BY date
 ORDER BY date
 `
 }
 
-export function createMeticsSql(start_time: number, end_time: number) {
+export function createMeticsSql(start_time: number, end_time: number, host: string) {
   return `
     SELECT
     COALESCE(COUNT(1), 0) AS ${MetricType.PAGEVIEWS},
@@ -127,10 +128,11 @@ WHERE
     e.event_id = '$page_view'
     AND e.event_time >= ${start_time}
     AND e.event_time <= ${end_time}
+    AND e.host = '${host}'
 `
 }
 
-export function createTopPagesSql(start_time: number, end_time: number) {
+export function createTopPagesSql(start_time: number, end_time: number, host: string) {
   return `
 SELECT
     CASE 
@@ -144,13 +146,14 @@ WHERE
     e.event_id = '$page_view'
     AND e.event_time >= ${start_time}
     AND e.event_time <= ${end_time}
+    AND e.host = '${host}'
 GROUP BY clean_url
 ORDER BY pv DESC
 LIMIT 10
 `
 }
 
-export function createTopRefererSql(start_time: number, end_time: number) {
+export function createTopRefererSql(start_time: number, end_time: number, host: string) {
   return `
 SELECT
     CASE 
@@ -175,13 +178,14 @@ WHERE
     e.event_id = '$page_view'
     AND e.event_time >= ${start_time}
     AND e.event_time <= ${end_time}
+    AND e.host = '${host}'
 GROUP BY referrer_no_path
 ORDER BY pv DESC
 LIMIT 10
 `
 }
 
-export function createTopOsSql(start_time: number, end_time: number) {
+export function createTopOsSql(start_time: number, end_time: number, host: string) {
   return `
 SELECT
     e.os,
@@ -191,13 +195,14 @@ WHERE
     e.event_id = '$page_view'
     AND e.event_time >= ${start_time}
     AND e.event_time <= ${end_time}
+    AND e.host = '${host}'
 GROUP BY os
 ORDER BY pv DESC
 LIMIT 10
 `
 }
 
-export function createTopBrowserSql(start_time: number, end_time: number) {
+export function createTopBrowserSql(start_time: number, end_time: number, host: string) {
   return `
 SELECT
     e.browser,
@@ -207,6 +212,7 @@ WHERE
     e.event_id = '$page_view'
     AND e.event_time >= ${start_time}
     AND e.event_time <= ${end_time}
+    AND e.host = '${host}'
 GROUP BY browser
 ORDER BY pv DESC
 LIMIT 10

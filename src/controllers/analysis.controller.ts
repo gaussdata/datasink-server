@@ -17,8 +17,8 @@ class Analysis {
 
   @cacheResponse()
   async getMetrics(req: Request, res: Response) {
-    const { start_time = 0, end_time = Date.now() } = req.query
-    const metricsInfo = await eventService.getMetrics(Number(start_time), Number(end_time))
+    const { start_time = 0, end_time = Date.now(), host = '' } = req.query
+    const metricsInfo = await eventService.getMetrics(Number(start_time), Number(end_time), host as string)
     res.send({
       data: metricsInfo,
     })
@@ -29,8 +29,8 @@ class Analysis {
 
   @cacheResponse()
   async getPVUV(req: Request, res: Response) {
-    const { start_time = 0, end_time = Date.now(), date_level = 'day' } = req.query
-    const pvuvInfo = await eventService.getPVUV(Number(start_time), Number(end_time), date_level as DateLevel)
+    const { start_time = 0, end_time = Date.now(), date_level = 'day', host = '' } = req.query
+    const pvuvInfo = await eventService.getPVUV(Number(start_time), Number(end_time), date_level as DateLevel, host as string)
     res.send({
       data: pvuvInfo,
     })
@@ -41,8 +41,8 @@ class Analysis {
 
   @cacheResponse()
   async getTopPages(req: Request, res: Response) {
-    const { start_time = 0, end_time = Date.now() } = req.query
-    const topPagesInfo = await eventService.getTopPages(Number(start_time), Number(end_time))
+    const { start_time = 0, end_time = Date.now(), host = '' } = req.query
+    const topPagesInfo = await eventService.getTopPages(Number(start_time), Number(end_time), host as string)
     res.send({
       data: topPagesInfo,
     })
@@ -53,8 +53,8 @@ class Analysis {
 
   @cacheResponse()
   async getTopReferers(req: Request, res: Response) {
-    const { start_time = 0, end_time = Date.now() } = req.query
-    const topReferersInfo = await eventService.getTopReferers(Number(start_time), Number(end_time))
+    const { start_time = 0, end_time = Date.now(), host = '' } = req.query
+    const topReferersInfo = await eventService.getTopReferers(Number(start_time), Number(end_time), host as string)
     res.send({
       data: topReferersInfo,
     })
@@ -65,8 +65,8 @@ class Analysis {
 
   @cacheResponse()
   async getTopOs(req: Request, res: Response) {
-    const { start_time = 0, end_time = Date.now() } = req.query
-    const topOsInfo = await eventService.getTopOs(Number(start_time), Number(end_time))
+    const { start_time = 0, end_time = Date.now(), host = '' } = req.query
+    const topOsInfo = await eventService.getTopOs(Number(start_time), Number(end_time), host as string)
     res.send({
       data: topOsInfo,
     })
@@ -77,8 +77,8 @@ class Analysis {
 
   @cacheResponse()
   async getTopBrowser(req: Request, res: Response) {
-    const { start_time = 0, end_time = Date.now() } = req.query
-    const topBrowserInfo = await eventService.getTopBrowser(Number(start_time), Number(end_time))
+    const { start_time = 0, end_time = Date.now(), host = '' } = req.query
+    const topBrowserInfo = await eventService.getTopBrowser(Number(start_time), Number(end_time), host as string)
     res.send({
       data: topBrowserInfo,
     })
