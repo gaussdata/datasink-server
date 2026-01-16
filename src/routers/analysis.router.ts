@@ -5,6 +5,7 @@ import { dateValidators } from './analysis.validator.js'
 
 const router = express.Router()
 
+router.get('/hosts', analysis.getHosts)
 router.get('/metrics', analysis.getMetrics)
 router.get('/pvuv', validate(dateValidators), analysis.getPVUV)
 router.get('/top-pages', validate(dateValidators), analysis.getTopPages)

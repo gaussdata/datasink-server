@@ -1,8 +1,10 @@
 import { MetricType } from '../types/metrics.js'
 
-export const createEventsSql = `
-CREATE TABLE IF NOT EXISTS events 
+export function createEventsSql(table: string) {
+  return `
+CREATE TABLE IF NOT EXISTS ${table} 
 (
+    id VARCHAR PRIMARY KEY AUTOINCREMENT,
     event_id VARCHAR, 
     event_time BIGINT,
     -- 事件上下文
@@ -30,6 +32,7 @@ CREATE TABLE IF NOT EXISTS events
     language VARCHAR
 );
 `
+}
 
 export const createInsertSql = `
 INSERT INTO events 

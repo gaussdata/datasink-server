@@ -25,7 +25,7 @@ class EventService {
   }
 
   async createTable() {
-    const query = createEventsSql
+    const query = createEventsSql('events')
     logger.info('create table events')
     try {
       await Database.exec(query)
@@ -34,6 +34,12 @@ class EventService {
     catch (error) {
       logger.error('create table error', error)
     }
+  }
+
+  async getHosts() {
+    const query = `SELECT DISTINCT host FROM events`
+    const rows = await Database.query(query) || []
+    return rows.map((row: any) => row.host)
   }
 
   async addEvents(events: IEventDto[]) {

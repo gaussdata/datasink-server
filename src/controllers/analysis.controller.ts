@@ -5,6 +5,17 @@ import eventService from '@/services/event.service.js'
 
 class Analysis {
   @cacheResponse()
+  async getHosts(req: Request, res: Response) {
+    const hosts = await eventService.getHosts()
+    res.send({
+      data: hosts,
+    })
+    return {
+      data: hosts,
+    }
+  }
+
+  @cacheResponse()
   async getMetrics(req: Request, res: Response) {
     const { start_time = 0, end_time = Date.now() } = req.query
     const metricsInfo = await eventService.getMetrics(Number(start_time), Number(end_time))

@@ -39,7 +39,7 @@ class Collector {
       lib_version: vo.head?.lib_version,
       // Props
       url: vo.body.url,
-      host: url.hostname,
+      host: url.host,
       title: vo.body.title,
       referrer: vo.body.referrer,
       // Screen

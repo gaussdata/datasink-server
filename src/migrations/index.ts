@@ -8,40 +8,28 @@ export class MigrationService {
 
   async init() {
     try {
-      await this.addColumns('events', 'host', 'TEXT')
+      await Database.exec(addColumnToTable('events', 'host', 'TEXT'))
     }
     catch (error) {
       logger.error('add columns to events error', error)
     }
-    const query = `select * from events where host is null`
+    const query = `select rowid, * from events where host is null`
     const events = await Database.query(query) || []
     const data = events.map(event => ({
       ...event,
-      host: new URL(event.url || '').hostname || '',
+      host: new URL(event.url || '').host || '',
     }))
     logger.info(`update events total ${events.length}`)
     logger.info(`update events data ${data.length}`)
     for (const event of data) {
-      const query = `update events set host = '${event.host}' where event_id = '${event.event_id}'`
+      const query = `update events set host='${event.host}' where rowid=${event.rowid}`
       try {
         await Database.exec(query)
       }
       catch (error) {
-        logger.error(`update events ${event.event_id} error`, error)
+        logger.error(`update events ${event.rowid} error`, error)
       }
     }
     logger.info('update events success')
-  }
-
-  async addColumns(table: string, column: string, dataType: string) {
-    const query = addColumnToTable(table, column, dataType)
-    logger.info('add columns to events', column)
-    try {
-      await Database.exec(query)
-      logger.info('add columns to events success')
-    }
-    catch (error) {
-      logger.error('add columns to events error', error)
-    }
   }
 }
