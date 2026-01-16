@@ -34,6 +34,7 @@ export interface IEventDto {
   lib: string
   lib_version: string
   url: string
+  host: string
   title: string
   referrer: string
   screen_width: number

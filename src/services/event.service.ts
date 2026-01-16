@@ -5,7 +5,6 @@ import { Database } from '@/utils/database.js'
 import { clampStartTimeByUnit, generateDatesByTime } from '@/utils/date.js'
 import logger from '@/utils/logger.js'
 import {
-  addColumnsToEvents,
   createEventsSql,
   createInsertSql,
   createMeticsSql,
@@ -37,18 +36,6 @@ class EventService {
     }
   }
 
-  async addColumns(table: string, column: string, dataType: string) {
-    const query = addColumnsToEvents(table, column, dataType)
-    logger.info('add columns to events', column)
-    try {
-      await Database.exec(query)
-      logger.info('add columns to events success')
-    }
-    catch (error) {
-      logger.error('add columns to events error', error)
-    }
-  }
-
   async addEvents(events: IEventDto[]) {
     if (!Array.isArray(events) || events.length === 0) {
       logger.info('No events to add.', events)
@@ -62,6 +49,7 @@ class EventService {
       event.lib,
       event.lib_version,
       event.url,
+      event.host,
       event.title,
       event.referrer,
       event.screen_width,

@@ -30,16 +30,13 @@ CREATE TABLE IF NOT EXISTS events
     language VARCHAR
 );
 `
-export function addColumnsToEvents(table: string, column: string, dataType: string) {
-  return `ALTER TABLE ${table} ADD COLUMN ${column} ${dataType};`
-}
 
 export const createInsertSql = `
 INSERT INTO events 
     (
     event_id, event_time, aa_id, session_id,
     lib, lib_version, 
-    url, title, referrer,
+    url, host, title, referrer,
     screen_width, screen_height, resolution, viewport_width, viewport_height,
     user_agent, os, browser, device_type, timezone, language
     )

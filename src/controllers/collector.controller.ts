@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express'
 import type { IEventDto, IEventVo } from '@/services/event.model'
+import { URL } from 'node:url'
 import { UAParser } from 'ua-parser-js'
 import eventService from '@/services/event.service.js'
 import logger from '@/utils/logger.js'
@@ -25,6 +26,7 @@ class Collector {
 
   private createRow(vo: IEventVo): IEventDto {
     const { os, browser } = UAParser(vo.body.user_agent)
+    const url = new URL(vo.body.url)
     return {
       // Event
       event_id: vo.head?.code,
@@ -37,6 +39,7 @@ class Collector {
       lib_version: vo.head?.lib_version,
       // Props
       url: vo.body.url,
+      host: url.hostname,
       title: vo.body.title,
       referrer: vo.body.referrer,
       // Screen

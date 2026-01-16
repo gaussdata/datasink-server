@@ -1,9 +1,13 @@
 import express from 'express'
 import middlewareCors from './middlewares/cors.js'
 import middlewareLog from './middlewares/log.js'
+import { MigrationService } from './migrations/index.js'
 import routerAnalysis from './routers/analysis.router.js'
 import routerCollector from './routers/collector.router.js'
 import logger from './utils/logger.js'
+
+const migrationService = new MigrationService()
+migrationService.init()
 
 const app = express()
 
