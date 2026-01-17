@@ -32,5 +32,5 @@ app.use('/analysis', routerAnalysis)
 
 // 程序监听3000端口
 app.listen(3000, () => {
-  logger.info('Server Listen at port 3000 http://localhost:3000')
+  logger.info('Server Listen at port 3000, Run at http://localhost:3000')
 })

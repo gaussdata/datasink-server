@@ -1,30 +1,18 @@
-import winston from 'winston'
+import { createLogger, format, transports } from 'winston'
 
-// 定义不同日志级别的文件路径
-const logLevels = {
-  debug: 'debug.log',
-  info: 'info.log',
-  warn: 'warn.log',
-  error: 'error.log',
-}
+const { combine, timestamp, label, printf } = format
 
-const transports = [
-  new winston.transports.Console({
-    level: 'info',
-    format: winston.format.simple(),
-  }),
-  ...Object.entries(logLevels).map(([level, filename]) => {
-    return new winston.transports.File({
-      level,
-      filename: `logs/${filename}`,
-      format: winston.format.simple(),
-    })
-  }),
-]
+const customFormat = printf(({ level, label, message, timestamp }) => {
+  return `${new Date(timestamp as string).toLocaleString()} [${level}] [${label}]: ${message}`
+})
 
-const logger = winston.createLogger({
-  format: winston.format.simple(),
-  transports,
+const logger = createLogger({
+  format: combine(
+    label({ label: 'default' }),
+    timestamp(),
+    customFormat,
+  ),
+  transports: [new transports.Console(), new transports.File({ filename: 'logs/combined.log' })],
 })
 
 export default logger
