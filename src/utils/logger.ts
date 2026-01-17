@@ -1,9 +1,11 @@
+import { format as dateFormat } from 'date-fns'
 import { createLogger, format, transports } from 'winston'
 
 const { combine, timestamp, label, printf } = format
 
 const customFormat = printf(({ level, label, message, timestamp }) => {
-  return `${new Date(timestamp as string).toLocaleString()} [${level}] [${label}]: ${message}`
+  const date = dateFormat(new Date(timestamp as string), 'yyyy-MM-dd HH:mm:ss')
+  return `[${date}] [${level}] [${label}]: ${message}`
 })
 
 const logger = createLogger({
